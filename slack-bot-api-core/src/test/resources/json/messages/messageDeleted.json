@@ -1,0 +1,19 @@
+{
+  "type": "message",
+  "deleted_ts": "1474235199.000002",
+  "subtype": "message_deleted",
+  "hidden": true,
+  "channel": "C024BE91L",
+  "previous_message": {
+    "type": "message",
+    "user": "U024BE7LH",
+    "text": "test editted again",
+    "editted": {
+      "user": "U024BE7LH",
+      "ts": "1474235238.000000"
+    },
+    "ts": "1474235199.000002"
+  },
+  "event_ts": "1474235276.589814",
+  "ts": "1474235276.000005"
+}

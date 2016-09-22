@@ -1,0 +1,18 @@
+{
+    "id": "D2A8H95RR",
+    "user": "USER2",
+    "created": 1473523615,
+    "is_im": true,
+    "is_org_shared": false,
+    "has_pins": false,
+    "last_read": "0000000000.000000",
+    "latest": {
+        "type": "message",
+        "user": "USER2",
+        "text": "asdf",
+        "ts": "1473602824.000004"
+    },
+    "unread_count": 4,
+    "unread_count_display": 4,
+    "is_open": true
+}

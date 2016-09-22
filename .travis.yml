@@ -1,0 +1,18 @@
+env:
+- COVERAGE: true
+language: java
+jdk:
+- oraclejdk8
+branches:
+  only:
+  - master
+install:
+- mvn test-compile -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+script:
+- mvn test jacoco:report
+after_success:
+- mvn coveralls:report
+notifications:
+  email: false
+  slack:
+    secure: Mdek8ZumjtAvWYb+rlbg5Oy/5W/C2dGRDwJrwyf1w3YYIdK0XM91qEIOFv38it5+3bSso+RLPVlaoHJO0ut7GBlFUhyLSFQ0yfHJ9fSjA2+GAjHvJ5PPiUo+DKIXDa2gKKZUKw1CtPqgWG5TUN3NbmAo7u4J0J/qtyHmLmJsR78Po7aQhXjCnF4joF0Isj6w1wKls9OgIGY41+2gAOx+kXJg6VKVKlZuE28pu4o+bOts3ClzmzKUdzUzRbsFMZX8+nwx90iFZAk6WCsTbrjRcduAW+jbLuhrd0Jyc5EfFeDwsa0hrDGHeJMAu+2XQloC9ka13Sgi0Lm/k5bwVHyFn8ZFZPEYa6MdboBD7NdEBxOkatS//nlRDbMTzpi6rZROdbXTULbUIcUQ+hwoNBNYPTzuyddZlH+42ESpdIUj6sIWtrQimXd5ptveJoFOqrvtlZls9fNZAhLw2znO2CCBs5/PmaiY163aPSMP50wULsx7jIf111lwrsVK1F7Gj36tEvRrpybW0IUv3D78mErC9iPRP1f3q7FOayPktj28b5zyw94CnU61/n0p9fXdqW3bzsiUtWpy+Tanooo1VCEqtKEqrZYj5bmZH3aix39DOWa4f+Fv+sSbCN641vsPRTwzt7MYlgflmXJfBofg5f1a1E2IU/au3mYHCKmPnWpP2jY=

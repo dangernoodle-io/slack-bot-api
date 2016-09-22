@@ -1,0 +1,8 @@
+{
+    "type": "channel_rename",
+    "channel": {
+        "id": "C024BE91L",
+        "name": "new name",
+        "created": 1360782804
+    }
+}
