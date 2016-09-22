@@ -1,0 +1,42 @@
+{
+    "type": "user_change",
+    "user": {
+        "id": "USER2",
+        "team_id": "TEAM12345",
+        "name": "user1",
+        "deleted": false,
+        "status": null,
+        "color": "9f69e7",
+        "real_name": "Real User",
+        "tz": "America/Los_Angeles",
+        "tz_label": "Pacific Daylight Time",
+        "tz_offset": -25200,
+        "profile": {
+            "first_name": "Real",
+            "last_name": "User",
+            "avatar_hash": "a2f95f226d28",
+            "image_24": "https://avatars.slack-edge.com/2016-07-25/63036739521_a2f95f226d289501ac87_24.png",
+            "image_32": "https://avatars.slack-edge.com/2016-07-25/63036739521_a2f95f226d289501ac87_32.png",
+            "image_48": "https://avatars.slack-edge.com/2016-07-25/63036739521_a2f95f226d289501ac87_48.png",
+            "image_72": "https://avatars.slack-edge.com/2016-07-25/63036739521_a2f95f226d289501ac87_72.png",
+            "image_192": "https://avatars.slack-edge.com/2016-07-25/63036739521_a2f95f226d289501ac87_72.png",
+            "image_512": "https://avatars.slack-edge.com/2016-07-25/63036739521_a2f95f226d289501ac87_72.png",
+            "image_1024": "https://avatars.slack-edge.com/2016-07-25/63036739521_a2f95f226d289501ac87_72.png",
+            "image_original": "https://avatars.slack-edge.com/2016-07-25/63036739521_a2f95f226d289501ac87_original.png",
+            "fields": [],
+            "title": "",
+            "phone": "",
+            "skype": "",
+            "real_name": "Real User",
+            "real_name_normalized": "Real User",
+            "email": "real@user.com"
+        },
+        "is_admin": true,
+        "is_owner": true,
+        "is_primary_owner": true,
+        "is_restricted": false,
+        "is_ultra_restricted": false,
+        "is_bot": false,
+        "presence": "active"
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "type": "group_rename",
+    "channel": {
+        "id":"G024BE91L",
+        "name":"new_name",
+        "created":1360782804
+    }
+}
