@@ -3,7 +3,7 @@ package io.dangernoodle.slack.client.rtm;
 import java.io.IOException;
 
 
-public interface SlackRtmApiClient
+public interface SlackWebSocketClient
 {
     void connect(String url) throws IOException;
 

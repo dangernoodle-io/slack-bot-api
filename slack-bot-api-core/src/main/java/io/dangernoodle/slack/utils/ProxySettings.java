@@ -7,38 +7,19 @@ package io.dangernoodle.slack.utils;
  */
 public class ProxySettings
 {
-    // turn this back into a builder to accept 'http/https/', etc etc
+    private String host;
 
-    private final String host;
+    private boolean https;
 
-    private final String password;
+    private String password;
 
-    private final int port;
+    private int port;
 
-    private ObjectSidekick<ProxySettings> sidekick;
+    private String username;
 
-    private final String username;
-
-    public ProxySettings(String host, int port)
+    private ProxySettings()
     {
-        this(host, port, "", "");
-    }
-
-    public ProxySettings(String host, int port, String username, String password)
-    {
-        this.host = host;
-        this.port = port;
-
-        this.username = username;
-        this.password = password;
-
-        this.sidekick = createSidekick();
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        return sidekick.equals(obj);
+        // builder
     }
 
     public String getHost()
@@ -61,23 +42,67 @@ public class ProxySettings
         return username;
     }
 
-    @Override
-    public int hashCode()
+    public boolean isHttps()
     {
-        return sidekick.hashCode();
+        return https;
     }
 
-    @Override
-    public String toString()
+    public String toProxyUrl()
     {
-        return sidekick.toString();
+        StringBuilder builder = new StringBuilder("http");
+
+        if (https)
+        {
+            builder.append("s");
+        }
+
+        builder.append("://")
+               .append(host);
+
+        if (port != 0)
+        {
+            builder.append(":").append(port);
+        }
+
+        return builder.toString();
     }
 
-    private ObjectSidekick<ProxySettings> createSidekick()
+    public static class Builder
     {
-        return new ObjectSidekick<>(this).with("host", ProxySettings::getHost)
-                                         .with("port", ProxySettings::getPort)
-                                         .with("username", ProxySettings::getUsername)
-                                         .with("password", ProxySettings::getPassword);
+        private final ProxySettings settings = new ProxySettings();
+
+        public Builder(String host)
+        {
+            settings.host = host;
+        }
+
+        public ProxySettings build()
+        {
+            return settings;
+        }
+
+        public Builder https(boolean https)
+        {
+            settings.https = https;
+            return this;
+        }
+
+        public Builder password(String password)
+        {
+            settings.password = password;
+            return this;
+        }
+
+        public Builder port(int port)
+        {
+            settings.port = port;
+            return this;
+        }
+
+        public Builder username(String username)
+        {
+            settings.username = username;
+            return this;
+        }
     }
 }

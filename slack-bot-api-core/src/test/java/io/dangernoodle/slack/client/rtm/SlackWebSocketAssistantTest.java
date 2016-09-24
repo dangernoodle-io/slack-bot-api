@@ -35,11 +35,11 @@ import io.dangernoodle.slack.utils.GsonTransformer;
 
 
 @RunWith(value = JUnitPlatform.class)
-public class SlackRtmApiAssistantEventTest
+public class SlackWebSocketAssistantTest
 {
     private static final SlackJsonTransformer transformer = new GsonTransformer();
 
-    private SlackRtmApiAssistant assistant;
+    private SlackWebSocketAssistant assistant;
 
     private ArgumentCaptor<? extends SlackEvent> eventCaptor;
 
@@ -68,7 +68,7 @@ public class SlackRtmApiAssistantEventTest
         when(mockClient.getObserverRegistry()).thenReturn(mockRegistry);
         when(mockRegistry.findObservers(any())).thenReturn(Arrays.asList(mockObserver));
 
-        assistant = new SlackRtmApiAssistant(mockClient, transformer, mockClientSettings);
+        assistant = new SlackWebSocketAssistant(mockClient, transformer, mockClientSettings);
     }
 
     @Test

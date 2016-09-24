@@ -23,9 +23,9 @@ import io.dangernoodle.slack.events.user.SlackUserChangeEvent;
 import io.dangernoodle.slack.events.user.SlackUserTypingEvent;
 
 
-public class SlackRtmApiAssistant
+public class SlackWebSocketAssistant
 {
-    private static final Logger logger = LoggerFactory.getLogger(SlackRtmApiAssistant.class);
+    private static final Logger logger = LoggerFactory.getLogger(SlackWebSocketAssistant.class);
 
     private final SlackClient client;
 
@@ -33,7 +33,7 @@ public class SlackRtmApiAssistant
 
     private final SlackJsonTransformer transformer;
 
-    public SlackRtmApiAssistant(SlackClient client, SlackJsonTransformer transformer, SlackClientSettings settings)
+    public SlackWebSocketAssistant(SlackClient client, SlackJsonTransformer transformer, SlackClientSettings settings)
     {
         this.client = client;
         this.transformer = transformer;
