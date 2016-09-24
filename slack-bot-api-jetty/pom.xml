@@ -16,12 +16,18 @@
   <artifactId>slack-bot-api-jetty</artifactId>
 
   <properties>
+    <jetty-client.version>9.3.12.v20160915</jetty-client.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>io.dangernoodle</groupId>
       <artifactId>slack-bot-api-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.websocket</groupId>
+      <artifactId>websocket-client</artifactId>
+      <version>${jetty-client.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
