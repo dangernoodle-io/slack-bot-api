@@ -1,7 +1,7 @@
 package io.dangernoodle.slack.client;
 
-import io.dangernoodle.slack.client.rtm.SlackRtmApiAssistant;
-import io.dangernoodle.slack.client.rtm.SlackRtmApiClient;
+import io.dangernoodle.slack.client.rtm.SlackWebSocketAssistant;
+import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
 import io.dangernoodle.slack.utils.ProxySettings;
 
 
@@ -11,5 +11,5 @@ public interface SlackProviderFactory
 
     SlackJsonTransformer createJsonTransformer();
 
-    SlackRtmApiClient createClient(SlackRtmApiAssistant delegate, ProxySettings proxySettings);
+    SlackWebSocketClient createClient(SlackWebSocketAssistant delegate, ProxySettings proxySettings);
 }

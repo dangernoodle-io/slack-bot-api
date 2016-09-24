@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.dangernoodle.slack.client.rtm.SlackObserverRegistry;
-import io.dangernoodle.slack.client.rtm.SlackRtmApiClient;
+import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
 import io.dangernoodle.slack.client.web.SlackWebApiClient;
 import io.dangernoodle.slack.objects.SlackMessageable;
 import io.dangernoodle.slack.objects.SlackStartBotResponse;
@@ -25,19 +25,19 @@ public class SlackClient
 {
     private static final Logger logger = LoggerFactory.getLogger(SlackClient.class);
 
+    private final SlackWebApiClient apiClient;
+
     private final AtomicLong messageId;
 
     private final SlackConnectionMonitor monitor;
 
     private final SlackObserverRegistry registry;
 
-    private final SlackRtmApiClient rtmClient;
+    private final SlackWebSocketClient rtmClient;
 
     private final SlackConnectionSession session;
 
     private final SlackClientSettings settings;
-
-    private final SlackWebApiClient webClient;
 
     public SlackClient(SlackClientBuilder builder)
     {
@@ -51,7 +51,7 @@ public class SlackClient
          * in the future that may get extracted, this method will most likely aways need something
          * passed from this class in order to link things together.
          */
-        this.webClient = builder.getWebClient();
+        this.apiClient = builder.getWebClient();
         this.rtmClient = builder.getRtmClient(this);
 
         this.settings = builder.getClientSettings();
@@ -62,16 +62,22 @@ public class SlackClient
         registerObservers();
     }
 
-    public void connect() throws ConnectException, IOException
+    public void connect()
     {
-        reconnect();
         monitor.start();
     }
 
-    public void disconnet() throws IOException
+    public void disconnet() throws UncheckedIOException
     {
-        monitor.stop();
-        rtmClient.disconnect();
+        try
+        {
+            monitor.stop();
+            rtmClient.disconnect();
+        }
+        catch (IOException e)
+        {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public SlackObserverRegistry getObserverRegistry()
@@ -104,7 +110,7 @@ public class SlackClient
         return new SlackObserverRegistry();
     }
 
-    SlackRtmApiClient createRtmClient(SlackClientBuilder builder)
+    SlackWebSocketClient createRtmClient(SlackClientBuilder builder)
     {
 
         return builder.getRtmClient(this);
@@ -115,13 +121,16 @@ public class SlackClient
         return builder.getWebClient();
     }
 
-    void reconnect() throws ConnectException, IOException
+    long reconnect() throws ConnectException, IOException
     {
-        SlackStartBotResponse response = webClient.initiateRtmConnection();
+        logger.trace("initiating slack rtm initiation request...");
+        SlackStartBotResponse response = apiClient.initiateRtmConnection();
+
         if (!response.isOk())
         {
             String error = response.getError();
             logger.error("failed to establish rtm session to slack: {}", error);
+
             throw new ConnectException(error);
         }
 
@@ -136,6 +145,11 @@ public class SlackClient
             // TODO: dispatch a "slack connected" event w/ 'SlackSelf'
             logger.info("slack session established!");
         }
+
+        long nextMessageId = nextMessageId();
+        session.updateLastPingId(nextMessageId);
+
+        return nextMessageId;
     }
 
     long sendPing()
@@ -164,7 +178,7 @@ public class SlackClient
         registry.addChannelCreatedObserver(SlackSessionObservers.channelCreatedObserver);
 
         // session user updates
-        //registry.add
+        // registry.add
     }
 
     private <T> T send(T object) throws UncheckedIOException

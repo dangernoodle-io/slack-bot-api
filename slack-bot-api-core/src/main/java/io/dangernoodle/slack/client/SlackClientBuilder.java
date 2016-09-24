@@ -1,7 +1,7 @@
 package io.dangernoodle.slack.client;
 
-import io.dangernoodle.slack.client.rtm.SlackRtmApiAssistant;
-import io.dangernoodle.slack.client.rtm.SlackRtmApiClient;
+import io.dangernoodle.slack.client.rtm.SlackWebSocketAssistant;
+import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
 import io.dangernoodle.slack.client.web.SlackWebApiClient;
 import io.dangernoodle.slack.utils.ProxySettings;
 
@@ -44,10 +44,10 @@ public class SlackClientBuilder
         return clientSettings;
     }
 
-    SlackRtmApiClient getRtmClient(SlackClient slackClient)
+    SlackWebSocketClient getRtmClient(SlackClient slackClient)
     {
         SlackJsonTransformer transformer = providerFactory.createJsonTransformer();
-        SlackRtmApiAssistant assistant = new SlackRtmApiAssistant(slackClient, transformer, clientSettings);
+        SlackWebSocketAssistant assistant = new SlackWebSocketAssistant(slackClient, transformer, clientSettings);
 
         return providerFactory.createClient(assistant, proxySettings);
     }

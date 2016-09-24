@@ -7,8 +7,8 @@ import io.dangernoodle.slack.utils.ProxySettings;
 public class TyrusSlackProviderFactory extends DefaultsProviderFactory
 {
     @Override
-    public SlackRtmApiClient createClient(SlackRtmApiAssistant assistant, ProxySettings proxySettings)
+    public SlackWebSocketClient createClient(SlackWebSocketAssistant assistant, ProxySettings proxySettings)
     {
-        return new TyrusSlackRtmApiClient(assistant, proxySettings);
+        return new TyrusSlackWebSocketClient(assistant, proxySettings);
     }
 }

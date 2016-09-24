@@ -11,25 +11,29 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
 import org.glassfish.tyrus.client.ClientManager;
+import org.glassfish.tyrus.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.dangernoodle.slack.client.rtm.SlackRtmApiClient;
-import io.dangernoodle.slack.client.rtm.SlackRtmApiAssistant;
 import io.dangernoodle.slack.utils.ProxySettings;
 
 
-public class TyrusSlackRtmApiClient implements SlackRtmApiClient, MessageHandler.Whole<String>
+/**
+ * WebSocket client implementation using <a href="https://tyrus.java.net">Project Tyrus</a>
+ *
+ * @since 0.1.0
+ */
+public class TyrusSlackWebSocketClient implements SlackWebSocketClient, MessageHandler.Whole<String>
 {
-    private static final Logger logger = LoggerFactory.getLogger(TyrusSlackRtmApiClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(TyrusSlackWebSocketClient.class);
 
-    private Session session;
-
-    private final SlackRtmApiAssistant assistant;
+    private final SlackWebSocketAssistant assistant;
 
     private final WebSocketContainer container;
 
-    public TyrusSlackRtmApiClient(SlackRtmApiAssistant assistant, ProxySettings proxySettings)
+    private Session session;
+
+    public TyrusSlackWebSocketClient(SlackWebSocketAssistant assistant, ProxySettings proxySettings)
     {
         this.assistant = assistant;
         this.container = createWebSocketContainer(proxySettings);
@@ -43,15 +47,15 @@ public class TyrusSlackRtmApiClient implements SlackRtmApiClient, MessageHandler
             session = container.connectToServer(new Endpoint()
             {
                 @Override
-                public void onOpen(Session session, EndpointConfig config)
-                {
-                    session.addMessageHandler(TyrusSlackRtmApiClient.this);
-                }
-
-                @Override
                 public void onError(Session session, Throwable thr)
                 {
                     logger.error("tyrus 'onError', message processing failed", thr);
+                }
+
+                @Override
+                public void onOpen(Session session, EndpointConfig config)
+                {
+                    session.addMessageHandler(TyrusSlackWebSocketClient.this);
                 }
 
             }, URI.create(url));
@@ -68,6 +72,7 @@ public class TyrusSlackRtmApiClient implements SlackRtmApiClient, MessageHandler
         if (session != null)
         {
             session.close();
+            session = null;
         }
     }
 
@@ -84,24 +89,30 @@ public class TyrusSlackRtmApiClient implements SlackRtmApiClient, MessageHandler
     }
 
     @Override
-    public synchronized void send(Object object) throws IOException
-    {
-        session.getBasicRemote().sendText(assistant.serialize(object));
-    }
-
-    @Override
     public void onMessage(String message)
     {
         assistant.handleEvent(message);
     }
 
+    @Override
+    public synchronized void send(Object object) throws IOException
+    {
+        session.getBasicRemote().sendText(assistant.serialize(object));
+    }
+
+    // visible for testing
+    ClientManager createClientManager()
+    {
+        return ClientManager.createClient();
+    }
+
     private WebSocketContainer createWebSocketContainer(ProxySettings proxySettings)
     {
-        ClientManager clientManager = ClientManager.createClient();
+        ClientManager clientManager = createClientManager();
 
         if (proxySettings != null)
         {
-            // TODO: add support for proxies
+            clientManager.getProperties().put(ClientProperties.PROXY_URI, proxySettings.toProxyUrl());
         }
 
         return clientManager;
