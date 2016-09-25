@@ -510,7 +510,7 @@
     "cache_ts_version": "v1-cat",
     "bots": [
         {
-            "id": "B28E3MEDA",
+            "id": "BOT1",
             "deleted": false,
             "name": "Travis CI",
             "icons": {
@@ -520,7 +520,7 @@
             }
         },
         {
-            "id": "B2A9XSJA2",
+            "id": "BOT2",
             "deleted": false,
             "name": "bot",
             "icons": {
@@ -530,7 +530,7 @@
             }
         },
         {
-            "id": "B1V0WQ8JH",
+            "id": "BOT3",
             "deleted": true,
             "name": "gdrive"
         }

@@ -36,38 +36,6 @@ public class SlackIntegration
         return deleted;
     }
 
-//    public static class Builder
-//    {
-//        private SlackIntegration integration;
-//
-//        public Builder(String id, String name)
-//        {
-//            integration = new SlackIntegration();
-//
-//            integration.id = new Id(id);
-//            integration.icons = new HashMap<>();
-//
-//            integration.name = name;
-//        }
-//
-//        public Builder addIcon(String name, String location)
-//        {
-//            integration.icons.put(name, location);
-//            return this;
-//        }
-//
-//        public SlackIntegration build()
-//        {
-//            return integration;
-//        }
-//
-//        public Builder isDeleted(boolean deleted)
-//        {
-//            integration.deleted = deleted;
-//            return this;
-//        }
-//    }
-
     public static class Id
     {
         private String id;

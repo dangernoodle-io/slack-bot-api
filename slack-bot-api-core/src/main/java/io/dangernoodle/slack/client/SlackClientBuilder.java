@@ -1,5 +1,9 @@
 package io.dangernoodle.slack.client;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
+
 import io.dangernoodle.slack.client.rtm.SlackWebSocketAssistant;
 import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
 import io.dangernoodle.slack.client.web.SlackWebApiClient;
@@ -8,28 +12,27 @@ import io.dangernoodle.slack.utils.ProxySettings;
 
 public class SlackClientBuilder
 {
-    private SlackClientSettings clientSettings;
+    private static final ServiceLoaderDelegate serviceLoaderDelegate = new ServiceLoaderDelegate();
+
+    private final SlackClientSettings clientSettings;
 
     private SlackProviderFactory providerFactory;
 
     private ProxySettings proxySettings;
 
+    public SlackClientBuilder(SlackClientSettings clientSettings)
+    {
+        this.clientSettings = clientSettings;
+    }
+
     public SlackClient build() throws IllegalStateException
     {
-        validate(providerFactory, "an implementation of 'SlackProviderFactory' is required");
-
         return new SlackClient(this);
     }
 
     public SlackClientBuilder with(ProxySettings settings)
     {
         this.proxySettings = settings;
-        return this;
-    }
-
-    public SlackClientBuilder with(SlackClientSettings settings)
-    {
-        this.clientSettings = settings;
         return this;
     }
 
@@ -46,6 +49,8 @@ public class SlackClientBuilder
 
     SlackWebSocketClient getRtmClient(SlackClient slackClient)
     {
+        SlackProviderFactory providerFactory = getSlackProviderFactory();
+
         SlackJsonTransformer transformer = providerFactory.createJsonTransformer();
         SlackWebSocketAssistant assistant = new SlackWebSocketAssistant(slackClient, transformer, clientSettings);
 
@@ -54,14 +59,39 @@ public class SlackClientBuilder
 
     SlackWebApiClient getWebClient()
     {
-        return new SlackWebApiClient(clientSettings, providerFactory.createHttpDelegate(proxySettings));
+        return new SlackWebApiClient(clientSettings, getSlackProviderFactory().createHttpDelegate(proxySettings));
     }
 
-    private void validate(Object required, String message) throws IllegalStateException
+    private SlackProviderFactory getSlackProviderFactory()
     {
-        if (required == null)
+        return (providerFactory != null) ? providerFactory : serviceLoaderDelegate.getSlackProviderFactory();
+    }
+
+    public static SlackClient createClient(SlackClientSettings settings)
+    {
+        return new SlackClientBuilder(settings).build();
+    }
+
+    private static class ServiceLoaderDelegate
+    {
+        SlackProviderFactory getSlackProviderFactory() throws IllegalStateException
         {
-            throw new IllegalStateException(message);
+            ServiceLoader<SlackProviderFactory> pfLoader = ServiceLoader.load(SlackProviderFactory.class);
+
+            List<SlackProviderFactory> factories = new ArrayList<>();
+            pfLoader.forEach(factories::add);
+
+            if (factories.size() == 0)
+            {
+                throw new IllegalStateException("no instances of 'SlackProviderFactory' found on classpath");
+            }
+
+            if (factories.size() != 1)
+            {
+                throw new IllegalStateException("multiple instances of 'SlackProviderFactory' found on classpath");
+            }
+
+            return factories.get(0);
         }
     }
 }

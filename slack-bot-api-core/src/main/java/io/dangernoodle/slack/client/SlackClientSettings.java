@@ -12,7 +12,7 @@ public class SlackClientSettings
 
     private boolean filterSelfMessages;
 
-    private int heartbeat = 30;
+    private int heartbeat = 15;
 
     private Map<String, String> pingArgs = new HashMap<>();
 
@@ -21,6 +21,7 @@ public class SlackClientSettings
     public SlackClientSettings(String authToken)
     {
         this.authToken = authToken;
+        this.reconnect = true;
     }
 
     public SlackClientSettings addPingArg(String name, String value)

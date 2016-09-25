@@ -20,13 +20,11 @@ class SlackConnectionMonitor
 
     private ScheduledFuture<?> future;
 
-    private int heartbeat;
+    private volatile int heartbeat;
 
     private long lastPingId;
 
-    private boolean reconnect;
-
-    private final Runnable runnable;
+    private volatile boolean reconnect;
 
     SlackConnectionMonitor(SlackClient client, int heartbeat, boolean reconnect)
     {
@@ -34,8 +32,17 @@ class SlackConnectionMonitor
         this.heartbeat = heartbeat;
         this.reconnect = reconnect;
 
-        this.runnable = new MonitorRunnable();
         this.executorService = createExecutorService();
+    }
+
+    public int getHeartbeat()
+    {
+        return heartbeat;
+    }
+
+    public boolean getReconnect()
+    {
+        return reconnect;
     }
 
 // TODO: jmx support
@@ -59,16 +66,45 @@ class SlackConnectionMonitor
         return Executors.newSingleThreadScheduledExecutor(this::createThread);
     }
 
-    void start()
+    // visible for testing
+    long getLastPingId()
     {
-        future = executorService.scheduleAtFixedRate(runnable, heartbeat, heartbeat, TimeUnit.SECONDS);
-        logger.info("heartbeat thread started at interval of [{}] seconds", heartbeat);
+        return lastPingId;
     }
 
-    void stop()
+    void run()
     {
-        future.cancel(true);
-        logger.info("hearbeat thread stopped");
+        if (client.isConnected() && lastPingId == client.getSession().getLastPingId())
+        {
+            lastPingId = client.sendPing();
+            logger.trace("connection ok, ping sent - id [{}]", lastPingId);
+        }
+        else if (reconnect)
+        {
+            logger.trace("issue with connection, reconnecting...");
+            reconnect();
+        }
+        else
+        {
+            logger.warn("disconnected from slack, reconnect not enabled");
+        }
+    }
+
+    synchronized void start()
+    {
+        logger.info("heartbeat thread started at interval of [{}] seconds", heartbeat);
+        future = executorService.scheduleAtFixedRate(this::run, 0, heartbeat, TimeUnit.SECONDS);
+    }
+
+    synchronized void stop()
+    {
+        if (future != null)
+        {
+            future.cancel(true);
+            future = null;
+
+            logger.info("hearbeat thread stopped");
+        }
     }
 
     private Thread createThread(Runnable runnable)
@@ -83,31 +119,12 @@ class SlackConnectionMonitor
     {
         try
         {
-            client.reconnect();
+            lastPingId = client.reconnect();
+            logger.trace("recconnected, ping id [{}]", lastPingId);
         }
         catch (IOException e)
         {
             logger.warn("reconnection failed", e);
-        }
-    }
-
-    private class MonitorRunnable implements Runnable
-    {
-        @Override
-        public void run()
-        {
-            if (client.isConnected() && lastPingId == client.getSession().getLastPingId())
-            {
-                lastPingId = client.sendPing();
-            }
-            else if (reconnect)
-            {
-                reconnect();
-            }
-            else
-            {
-                logger.warn("disconnected from slack, reconnect not enabled");
-            }
         }
     }
 }
