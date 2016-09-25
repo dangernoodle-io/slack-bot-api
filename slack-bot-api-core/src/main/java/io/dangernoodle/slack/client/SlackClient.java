@@ -1,4 +1,4 @@
-package io.dangernoodle.slack.client;
+    package io.dangernoodle.slack.client;
 
 import static io.dangernoodle.slack.client.SlackJsonTransformer.ID;
 import static io.dangernoodle.slack.client.SlackJsonTransformer.PING;
@@ -17,10 +17,16 @@ import org.slf4j.LoggerFactory;
 import io.dangernoodle.slack.client.rtm.SlackObserverRegistry;
 import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
 import io.dangernoodle.slack.client.web.SlackWebApiClient;
+import io.dangernoodle.slack.events.SlackEventType;
 import io.dangernoodle.slack.objects.SlackMessageable;
 import io.dangernoodle.slack.objects.SlackStartBotResponse;
 
 
+/**
+ * Slack Client - It all happens here!
+ *
+ * @since 0.1.0
+ */
 public class SlackClient
 {
     private static final Logger logger = LoggerFactory.getLogger(SlackClient.class);
@@ -39,13 +45,13 @@ public class SlackClient
 
     private final SlackClientSettings settings;
 
-    public SlackClient(SlackClientBuilder builder)
+    SlackClient(SlackClientBuilder builder)
     {
-        this.session = new SlackConnectionSession();
         this.messageId = new AtomicLong();
+        this.session = createConnectionSession();
 
         /*-
-         * this is a little weird - right now the 'SlackRtmAssistant' is created in the builder as
+         * this is a little weird - right now the 'SlackWebSocketAssistant' is created in the builder as
          * it needs the json transformer, etc and also contains all the logic for dispatching events
          *
          * in the future that may get extracted, this method will most likely aways need something
@@ -62,12 +68,18 @@ public class SlackClient
         registerObservers();
     }
 
+    /**
+     * Connect to slack
+     */
     public void connect()
     {
         monitor.start();
     }
 
-    public void disconnet() throws UncheckedIOException
+    /**
+     * Disconnect from slack
+     */
+    public void disconnet()
     {
         try
         {
@@ -76,7 +88,7 @@ public class SlackClient
         }
         catch (IOException e)
         {
-            throw new UncheckedIOException(e);
+            logger.warn("unexpected error disconnecting", e);
         }
     }
 
@@ -95,30 +107,35 @@ public class SlackClient
         return rtmClient.isConnected();
     }
 
+    /**
+     * Send a simple message over the websocket
+     *
+     * @param id messageble id (<code>chanel</code>, <code>group<code>, etc...)
+     * @param text message text
+     * @return message id
+     * @throws UncheckedIOException if there is an issue sending the message
+     */
     public long send(SlackMessageable.Id id, String text) throws UncheckedIOException
     {
-        return send(new SimpleMessage(id.value(), text)).id;
+        return send(new SimpleMessage(nextMessageId(), id.value(), text)).id;
     }
 
+    // visible for testing
     SlackConnectionMonitor createConnectionMonitor()
     {
         return new SlackConnectionMonitor(this, settings.getHeartbeat(), settings.getReconnect());
     }
 
+    // visible for testing
+    SlackConnectionSession createConnectionSession()
+    {
+        return new SlackConnectionSession();
+    }
+
+    // visible for testing
     SlackObserverRegistry createObserverRegistry()
     {
         return new SlackObserverRegistry();
-    }
-
-    SlackWebSocketClient createRtmClient(SlackClientBuilder builder)
-    {
-
-        return builder.getRtmClient(this);
-    }
-
-    SlackWebApiClient createWebClient(SlackClientBuilder builder)
-    {
-        return builder.getWebClient();
     }
 
     long reconnect() throws ConnectException, IOException
@@ -140,16 +157,28 @@ public class SlackClient
             rtmClient.connect(response.getUrl());
         }
 
-        if (rtmClient.isConnected())
+        if (!rtmClient.isConnected())
         {
-            // TODO: dispatch a "slack connected" event w/ 'SlackSelf'
-            logger.info("slack session established!");
+            throw new ConnectException("websocket is not connected");
         }
+
+        logSessionEstablished(response);
 
         long nextMessageId = nextMessageId();
         session.updateLastPingId(nextMessageId);
 
         return nextMessageId;
+    }
+
+    void logSessionEstablished(SlackStartBotResponse response)
+    {
+        logger.info("slack session established!");
+        logger.info("");
+        logger.info("team: {} ({})", response.getTeam().getName(), response.getTeam().getId().value());
+        logger.info("self: {} ({})", response.getSelf().getName(), response.getSelf().getId().value());
+        logger.info("connected users: {}", response.getUsers().size());
+        logger.info("public channels: {}", response.getChannels().size());
+        logger.info("private channels: {}", response.getGroups().size());
     }
 
     long sendPing()
@@ -177,7 +206,7 @@ public class SlackClient
         registry.addGroupJoinedObserver(SlackSessionObservers.groupJoinedObserver);
         registry.addChannelCreatedObserver(SlackSessionObservers.channelCreatedObserver);
 
-        // session user updates
+        // TODO: session user updates
         // registry.add
     }
 
@@ -194,19 +223,22 @@ public class SlackClient
         }
     }
 
-    @SuppressWarnings("unused")
-    private class SimpleMessage
+    static class SimpleMessage
     {
-        private final String channel;
+        final String channel;
 
-        private final long id = nextMessageId();
+        final long id;
 
-        private final String text;
+        final String text;
 
-        SimpleMessage(String channel, String text)
+        final String type;
+
+        SimpleMessage(long id, String channel, String text)
         {
+            this.id = id;
             this.channel = channel;
             this.text = text;
+            this.type = SlackEventType.MESSAGE.toType();
         }
     }
 }

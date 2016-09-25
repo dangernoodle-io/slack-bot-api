@@ -1,6 +1,7 @@
 package io.dangernoodle.slack.objects;
 
 import java.util.Map;
+import java.util.Objects;
 
 
 public class SlackUser
@@ -129,6 +130,29 @@ public class SlackUser
         public Id(String id)
         {
             this.id = id;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == null || getClass() != obj.getClass())
+            {
+                return false;
+            }
+
+            return Objects.equals(this.id, ((Id) obj).id);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(id);
+        }
+
+        @Override
+        public String toString()
+        {
+            return String.format("SlackUser.Id [id=%s]", id);
         }
 
         public String value()

@@ -27,6 +27,7 @@ public enum SlackJsonTestFiles
     messageDeleted,
     pong,
     pongArgs,
+    rtmStartResp,
     userChange,
     userTyping;
 
@@ -36,7 +37,7 @@ public enum SlackJsonTestFiles
 
     static
     {
-        dirs = Arrays.asList("events", "messages", "objects");
+        dirs = Arrays.asList("/", "/events", "/messages", "/objects");
         transformer = new GsonTransformer();
     }
 
@@ -68,7 +69,7 @@ public enum SlackJsonTestFiles
     private InputStream getInputStream()
     {
         return dirs.stream()
-                   .map(dir -> String.format("/json/%s/%s.json", dir, jsonFile))
+                   .map(dir -> String.format("/json%s/%s.json", dir, jsonFile))
                    .map(file -> getClass().getResourceAsStream(file))
                    .filter(stream -> stream != null)
                    .findFirst()

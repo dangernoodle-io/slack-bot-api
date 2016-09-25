@@ -75,7 +75,6 @@ public class JettySlackWebSocketClientTest
         thenSessionWasClosed();
 
         whenDisconnect();
-
         // meh...
         verifyNoMoreInteractions(mockSession);
     }
