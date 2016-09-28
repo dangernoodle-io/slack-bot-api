@@ -10,8 +10,6 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.dangernoodle.slack.utils.ProxySettings;
-
 
 /**
  * WebSocket client implementation using
@@ -28,7 +26,7 @@ public class JettySlackWebSocketClient implements SlackWebSocketClient, WebSocke
 
     private final WebSocketClient socketClient;
 
-    public JettySlackWebSocketClient(SlackWebSocketAssistant assistant, ProxySettings proxySettings)
+    public JettySlackWebSocketClient(SlackWebSocketAssistant assistant)
     {
         this.assistant = assistant;
         this.socketClient = createWebSocketClient();
@@ -45,7 +43,6 @@ public class JettySlackWebSocketClient implements SlackWebSocketClient, WebSocke
         try
         {
             startClient();
-
             session = socketClient.connect(this, URI.create(url)).get();
         }
         // oh jetty, how i love and hate thee...

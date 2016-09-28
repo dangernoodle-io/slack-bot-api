@@ -4,7 +4,6 @@ import static org.mockito.Mockito.mock;
 
 import io.dangernoodle.slack.client.rtm.SlackWebSocketAssistant;
 import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
-import io.dangernoodle.slack.utils.ProxySettings;
 
 
 public class SlackTestProviderFactory implements SlackProviderFactory
@@ -14,7 +13,7 @@ public class SlackTestProviderFactory implements SlackProviderFactory
     static SlackWebSocketClient websocketClient;
 
     @Override
-    public SlackHttpDelegate createHttpDelegate(ProxySettings proxySettings)
+    public SlackHttpDelegate createHttpDelegate()
     {
         httpDelegate = mock(SlackHttpDelegate.class);
         return httpDelegate;
@@ -28,7 +27,7 @@ public class SlackTestProviderFactory implements SlackProviderFactory
     }
 
     @Override
-    public SlackWebSocketClient createClient(SlackWebSocketAssistant delegate, ProxySettings proxySettings)
+    public SlackWebSocketClient createClient(SlackWebSocketAssistant delegate)
     {
         websocketClient = mock(SlackWebSocketClient.class);
         return websocketClient;

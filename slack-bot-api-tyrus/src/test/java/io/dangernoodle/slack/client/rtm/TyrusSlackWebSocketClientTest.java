@@ -1,6 +1,5 @@
 package io.dangernoodle.slack.client.rtm;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,24 +12,20 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.websocket.DeploymentException;
 import javax.websocket.Endpoint;
 import javax.websocket.RemoteEndpoint.Basic;
 import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
 
 import org.glassfish.tyrus.client.ClientManager;
-import org.glassfish.tyrus.client.ClientProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import io.dangernoodle.slack.utils.ProxySettings;
 
 
 @RunWith(value = JUnitPlatform.class)
@@ -48,14 +43,10 @@ public class TyrusSlackWebSocketClientTest
     @Mock
     private ClientManager mockContainer;
 
-    private ProxySettings mockProxy;
-
     @Mock
     private Basic mockRemote;
 
     private Session mockSession;
-
-    private Map<String, Object> properties = new HashMap<>();
 
     @BeforeEach
     public void before()
@@ -119,7 +110,7 @@ public class TyrusSlackWebSocketClientTest
     @Test
     public void testSendMessage() throws Exception
     {
-        givenAClientWithProxy();
+        givenAClient();
         whenConnect();
         whenSendMessage();
         thenMessageWasSent();
@@ -134,21 +125,12 @@ public class TyrusSlackWebSocketClientTest
         thenClientConnected();
     }
 
-    @Test
-    public void testSessionConnectedWithProxy() throws Exception
+    private TyrusSlackWebSocketClient createTyrusClient()
     {
-        givenAClientWithProxy();
-        whenConnect();
-        thenProxyWasConfiguredOnClient();
-        thenClientConnected();
-    }
-
-    private TyrusSlackWebSocketClient createTyrusClient(ProxySettings proxySettings)
-    {
-        return new TyrusSlackWebSocketClient(mockAssistant, proxySettings)
+        return new TyrusSlackWebSocketClient(mockAssistant)
         {
             @Override
-            ClientManager createClientManager()
+            WebSocketContainer createWebSocketContainer()
             {
                 return mockContainer;
             }
@@ -157,17 +139,7 @@ public class TyrusSlackWebSocketClientTest
 
     private void givenAClient()
     {
-        client = createTyrusClient(mockProxy);
-    }
-
-    private void givenAClientWithProxy()
-    {
-        mockProxy = mock(ProxySettings.class);
-        when(mockProxy.toProxyUrl()).thenReturn(WS_URL);
-
-        when(mockContainer.getProperties()).thenReturn(properties);
-
-        client = createTyrusClient(mockProxy);
+        client = createTyrusClient();
     }
 
     private void givenConnected()
@@ -221,12 +193,6 @@ public class TyrusSlackWebSocketClientTest
         assertFalse(actualBool);
     }
 
-    private void thenProxyWasConfiguredOnClient()
-    {
-        assertTrue(properties.containsKey(ClientProperties.PROXY_URI));
-        assertEquals(WS_URL, properties.get(ClientProperties.PROXY_URI));
-    }
-
     private void thenProxyWasNotConfiguredOnClient()
     {
         verify(mockContainer, never()).getProperties();
@@ -260,7 +226,7 @@ public class TyrusSlackWebSocketClientTest
 
     private void whenDisconnect() throws IOException
     {
-       client.disconnect();
+        client.disconnect();
     }
 
     private void whenIsConnected()

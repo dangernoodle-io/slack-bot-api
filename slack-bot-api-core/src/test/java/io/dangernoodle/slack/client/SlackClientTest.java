@@ -25,10 +25,10 @@ import org.mockito.MockitoAnnotations;
 import io.dangernoodle.slack.client.SlackClient.SimpleMessage;
 import io.dangernoodle.slack.client.rtm.SlackObserverRegistry;
 import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
-import io.dangernoodle.slack.client.web.SlackWebApiClient;
+import io.dangernoodle.slack.client.web.SlackWebClient;
 import io.dangernoodle.slack.events.SlackEventType;
 import io.dangernoodle.slack.objects.SlackMessageable;
-import io.dangernoodle.slack.objects.SlackStartBotResponse;
+import io.dangernoodle.slack.objects.api.SlackStartRtmResponse;
 
 
 @RunWith(value = JUnitPlatform.class)
@@ -48,7 +48,7 @@ public class SlackClientTest
     private long messageId;
 
     @Mock
-    private SlackWebApiClient mockApiClient;
+    private SlackWebClient mockApiClient;
 
     @Mock
     private SlackConnectionMonitor mockMonitor;
@@ -57,7 +57,7 @@ public class SlackClientTest
     private SlackObserverRegistry mockRegistry;
 
     @Mock
-    private SlackStartBotResponse mockResponse;
+    private SlackStartRtmResponse mockResponse;
 
     @Mock
     private SlackWebSocketClient mockRtmClient;
@@ -208,7 +208,7 @@ public class SlackClientTest
             }
 
             @Override
-            SlackWebApiClient getWebClient()
+            SlackWebClient getWebClient()
             {
                 return mockApiClient;
             }
@@ -241,7 +241,7 @@ public class SlackClientTest
             }
 
             @Override
-            void logSessionEstablished(SlackStartBotResponse response)
+            void logSessionEstablished(SlackStartRtmResponse response)
             {
                 // i don't feel like mocking out the calls for log statements
             }

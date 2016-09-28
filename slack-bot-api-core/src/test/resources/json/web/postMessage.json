@@ -1,0 +1,16 @@
+{
+    "as_user": false,
+    "attachments": [{
+        "text": "text"
+    }],
+    "channel": "C1",
+    "icon_emoji": "emoji",
+    "icon_url": "http://example.com/path/to/icon.png",
+    "link_names": 1,
+    "parse": "full",
+    "text": "text",
+    "token": "token",
+    "unfurl_links": true,
+    "unfurl_media": true,
+    "username": "username"
+}

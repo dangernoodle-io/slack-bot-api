@@ -1,10 +1,17 @@
-package io.dangernoodle.slack.objects;
+package io.dangernoodle.slack.objects.api;
 
 import java.util.Collection;
 import java.util.Collections;
 
+import io.dangernoodle.slack.objects.SlackChannel;
+import io.dangernoodle.slack.objects.SlackDirectMessage;
+import io.dangernoodle.slack.objects.SlackIntegration;
+import io.dangernoodle.slack.objects.SlackSelf;
+import io.dangernoodle.slack.objects.SlackTeam;
+import io.dangernoodle.slack.objects.SlackUser;
 
-public class SlackStartBotResponse
+
+public class SlackStartRtmResponse
 {
     private Collection<SlackIntegration> bots;
 
@@ -26,7 +33,7 @@ public class SlackStartBotResponse
 
     private Collection<SlackUser> users;
 
-    private SlackStartBotResponse()
+    private SlackStartRtmResponse()
     {
         // use the builder
     }

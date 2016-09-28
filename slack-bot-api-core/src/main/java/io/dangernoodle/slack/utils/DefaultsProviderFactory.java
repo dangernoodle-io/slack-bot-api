@@ -7,12 +7,13 @@ import io.dangernoodle.slack.client.SlackProviderFactory;
 
 public abstract class DefaultsProviderFactory implements SlackProviderFactory
 {
+    private final SlackHttpDelegate httpDelegate = new OkHttpDelegate();
     private final SlackJsonTransformer jsonTransformer = new GsonTransformer();
 
     @Override
-    public SlackHttpDelegate createHttpDelegate(ProxySettings proxySettings)
+    public SlackHttpDelegate createHttpDelegate()
     {
-        return new GoogleHttpDelegate(jsonTransformer, proxySettings);
+        return httpDelegate;
     }
 
     @Override

@@ -138,7 +138,7 @@ public class JettySlackWebSocketClientTest
 
     private void givenAClient()
     {
-        client = new JettySlackWebSocketClient(mockAssistant, null)
+        client = new JettySlackWebSocketClient(mockAssistant)
         {
             @Override
             WebSocketClient createWebSocketClient()
