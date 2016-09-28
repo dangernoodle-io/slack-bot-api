@@ -11,11 +11,8 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
 import org.glassfish.tyrus.client.ClientManager;
-import org.glassfish.tyrus.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.dangernoodle.slack.utils.ProxySettings;
 
 
 /**
@@ -33,10 +30,10 @@ public class TyrusSlackWebSocketClient implements SlackWebSocketClient, MessageH
 
     private Session session;
 
-    public TyrusSlackWebSocketClient(SlackWebSocketAssistant assistant, ProxySettings proxySettings)
+    public TyrusSlackWebSocketClient(SlackWebSocketAssistant assistant)
     {
         this.assistant = assistant;
-        this.container = createWebSocketContainer(proxySettings);
+        this.container = createWebSocketContainer();
     }
 
     @Override
@@ -101,20 +98,8 @@ public class TyrusSlackWebSocketClient implements SlackWebSocketClient, MessageH
     }
 
     // visible for testing
-    ClientManager createClientManager()
+    WebSocketContainer createWebSocketContainer()
     {
         return ClientManager.createClient();
-    }
-
-    private WebSocketContainer createWebSocketContainer(ProxySettings proxySettings)
-    {
-        ClientManager clientManager = createClientManager();
-
-        if (proxySettings != null)
-        {
-            clientManager.getProperties().put(ClientProperties.PROXY_URI, proxySettings.toProxyUrl());
-        }
-
-        return clientManager;
     }
 }

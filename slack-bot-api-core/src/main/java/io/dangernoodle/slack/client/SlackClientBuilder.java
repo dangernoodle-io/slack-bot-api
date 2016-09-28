@@ -6,8 +6,7 @@ import java.util.ServiceLoader;
 
 import io.dangernoodle.slack.client.rtm.SlackWebSocketAssistant;
 import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
-import io.dangernoodle.slack.client.web.SlackWebApiClient;
-import io.dangernoodle.slack.utils.ProxySettings;
+import io.dangernoodle.slack.client.web.SlackWebClient;
 
 
 public class SlackClientBuilder
@@ -16,9 +15,11 @@ public class SlackClientBuilder
 
     private final SlackClientSettings clientSettings;
 
-    private SlackProviderFactory providerFactory;
+    private SlackHttpDelegate httpDelegate;
 
-    private ProxySettings proxySettings;
+    private SlackJsonTransformer jsonTransformer;
+
+    private SlackProviderFactory providerFactory;
 
     public SlackClientBuilder(SlackClientSettings clientSettings)
     {
@@ -27,13 +28,12 @@ public class SlackClientBuilder
 
     public SlackClient build() throws IllegalStateException
     {
-        return new SlackClient(this);
-    }
+        this.providerFactory = getSlackProviderFactory();
 
-    public SlackClientBuilder with(ProxySettings settings)
-    {
-        this.proxySettings = settings;
-        return this;
+        this.httpDelegate = providerFactory.createHttpDelegate();
+        this.jsonTransformer = providerFactory.createJsonTransformer();
+
+        return new SlackClient(this);
     }
 
     public SlackClientBuilder with(SlackProviderFactory providerFactory)
@@ -49,17 +49,14 @@ public class SlackClientBuilder
 
     SlackWebSocketClient getRtmClient(SlackClient slackClient)
     {
-        SlackProviderFactory providerFactory = getSlackProviderFactory();
+        SlackWebSocketAssistant assistant = new SlackWebSocketAssistant(slackClient, jsonTransformer, clientSettings);
 
-        SlackJsonTransformer transformer = providerFactory.createJsonTransformer();
-        SlackWebSocketAssistant assistant = new SlackWebSocketAssistant(slackClient, transformer, clientSettings);
-
-        return providerFactory.createClient(assistant, proxySettings);
+        return providerFactory.createClient(assistant);
     }
 
-    SlackWebApiClient getWebClient()
+    SlackWebClient getWebClient()
     {
-        return new SlackWebApiClient(clientSettings, getSlackProviderFactory().createHttpDelegate(proxySettings));
+        return new SlackWebClient(clientSettings, httpDelegate, jsonTransformer);
     }
 
     private SlackProviderFactory getSlackProviderFactory()

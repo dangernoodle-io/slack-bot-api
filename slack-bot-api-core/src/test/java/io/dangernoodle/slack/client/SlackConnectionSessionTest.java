@@ -12,8 +12,8 @@ import org.junit.runner.RunWith;
 import io.dangernoodle.slack.SlackJsonTestFiles;
 import io.dangernoodle.slack.objects.SlackIntegration;
 import io.dangernoodle.slack.objects.SlackMessageable;
-import io.dangernoodle.slack.objects.SlackStartBotResponse;
 import io.dangernoodle.slack.objects.SlackUser;
+import io.dangernoodle.slack.objects.api.SlackStartRtmResponse;
 
 
 @RunWith(value = JUnitPlatform.class)
@@ -104,7 +104,7 @@ public class SlackConnectionSessionTest
     private void givenAnRtmResponse()
     {
         jsonFile = SlackJsonTestFiles.rtmStartResp;
-        session.updateSession(SlackJsonTestFiles.rtmStartResp.parseIntoObject(SlackStartBotResponse.class));
+        session.updateSession(SlackJsonTestFiles.rtmStartResp.parseIntoObject(SlackStartRtmResponse.class));
     }
 
     private void givenAPingId()
@@ -189,6 +189,6 @@ public class SlackConnectionSessionTest
 
     private void whenUpdateSession()
     {
-        session.updateSession(jsonFile.parseIntoObject(SlackStartBotResponse.class));
+        session.updateSession(jsonFile.parseIntoObject(SlackStartRtmResponse.class));
     }
 }

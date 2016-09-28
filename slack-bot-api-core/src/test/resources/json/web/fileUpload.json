@@ -1,0 +1,7 @@
+{
+    "channels": "C1,C2",
+    "filetype": "txt",
+    "initial_comment": "comment",
+    "title": "title",
+    "token": "token"
+}

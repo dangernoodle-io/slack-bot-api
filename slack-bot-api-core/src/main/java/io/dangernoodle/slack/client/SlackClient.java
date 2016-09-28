@@ -1,4 +1,4 @@
-    package io.dangernoodle.slack.client;
+package io.dangernoodle.slack.client;
 
 import static io.dangernoodle.slack.client.SlackJsonTransformer.ID;
 import static io.dangernoodle.slack.client.SlackJsonTransformer.PING;
@@ -16,10 +16,12 @@ import org.slf4j.LoggerFactory;
 
 import io.dangernoodle.slack.client.rtm.SlackObserverRegistry;
 import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
-import io.dangernoodle.slack.client.web.SlackWebApiClient;
+import io.dangernoodle.slack.client.web.SlackWebClient;
 import io.dangernoodle.slack.events.SlackEventType;
 import io.dangernoodle.slack.objects.SlackMessageable;
-import io.dangernoodle.slack.objects.SlackStartBotResponse;
+import io.dangernoodle.slack.objects.api.SlackPostMessage;
+import io.dangernoodle.slack.objects.api.SlackStartRtmResponse;
+import io.dangernoodle.slack.objects.api.SlackWebResponse;
 
 
 /**
@@ -30,8 +32,6 @@ import io.dangernoodle.slack.objects.SlackStartBotResponse;
 public class SlackClient
 {
     private static final Logger logger = LoggerFactory.getLogger(SlackClient.class);
-
-    private final SlackWebApiClient apiClient;
 
     private final AtomicLong messageId;
 
@@ -45,6 +45,8 @@ public class SlackClient
 
     private final SlackClientSettings settings;
 
+    private final SlackWebClient webClient;
+
     SlackClient(SlackClientBuilder builder)
     {
         this.messageId = new AtomicLong();
@@ -57,8 +59,8 @@ public class SlackClient
          * in the future that may get extracted, this method will most likely aways need something
          * passed from this class in order to link things together.
          */
-        this.apiClient = builder.getWebClient();
         this.rtmClient = builder.getRtmClient(this);
+        this.webClient = builder.getWebClient();
 
         this.settings = builder.getClientSettings();
 
@@ -102,6 +104,11 @@ public class SlackClient
         return session;
     }
 
+    public SlackWebClient getWebClient()
+    {
+        return webClient;
+    }
+
     public boolean isConnected()
     {
         return rtmClient.isConnected();
@@ -118,6 +125,11 @@ public class SlackClient
     public long send(SlackMessageable.Id id, String text) throws UncheckedIOException
     {
         return send(new SimpleMessage(nextMessageId(), id.value(), text)).id;
+    }
+
+    public SlackWebResponse send(SlackMessageable.Id id, SlackPostMessage.Builder builder) throws IOException
+    {
+        return webClient.send(id, builder);
     }
 
     // visible for testing
@@ -138,10 +150,21 @@ public class SlackClient
         return new SlackObserverRegistry();
     }
 
+    void logSessionEstablished(SlackStartRtmResponse response)
+    {
+        logger.info("slack session established!");
+        logger.info("");
+        logger.info("team: {} ({})", response.getTeam().getName(), response.getTeam().getId().value());
+        logger.info("self: {} ({})", response.getSelf().getName(), response.getSelf().getId().value());
+        logger.info("connected users: {}", response.getUsers().size());
+        logger.info("public channels: {}", response.getChannels().size());
+        logger.info("private channels: {}", response.getGroups().size());
+    }
+
     long reconnect() throws ConnectException, IOException
     {
         logger.trace("initiating slack rtm initiation request...");
-        SlackStartBotResponse response = apiClient.initiateRtmConnection();
+        SlackStartRtmResponse response = webClient.initiateRtmConnection();
 
         if (!response.isOk())
         {
@@ -168,17 +191,6 @@ public class SlackClient
         session.updateLastPingId(nextMessageId);
 
         return nextMessageId;
-    }
-
-    void logSessionEstablished(SlackStartBotResponse response)
-    {
-        logger.info("slack session established!");
-        logger.info("");
-        logger.info("team: {} ({})", response.getTeam().getName(), response.getTeam().getId().value());
-        logger.info("self: {} ({})", response.getSelf().getName(), response.getSelf().getId().value());
-        logger.info("connected users: {}", response.getUsers().size());
-        logger.info("public channels: {}", response.getChannels().size());
-        logger.info("private channels: {}", response.getGroups().size());
     }
 
     long sendPing()

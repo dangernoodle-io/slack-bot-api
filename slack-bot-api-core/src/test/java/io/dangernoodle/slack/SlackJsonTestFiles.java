@@ -10,12 +10,15 @@ import io.dangernoodle.slack.utils.GsonTransformer;
 
 public enum SlackJsonTestFiles
 {
+    attachment,
     channel,
     channelCreated,
     channelDeleted,
     channelJoined,
     channelLeft,
     channelRename,
+    chatPostMessage,
+    fileUpload,
     group,
     groupJoined,
     groupLeft,
@@ -25,6 +28,7 @@ public enum SlackJsonTestFiles
     message,
     messageChanged,
     messageDeleted,
+    postMessage,
     pong,
     pongArgs,
     rtmStartResp,
@@ -37,7 +41,7 @@ public enum SlackJsonTestFiles
 
     static
     {
-        dirs = Arrays.asList("/", "/events", "/messages", "/objects");
+        dirs = Arrays.asList("/events", "/messages", "/objects", "/web");
         transformer = new GsonTransformer();
     }
 

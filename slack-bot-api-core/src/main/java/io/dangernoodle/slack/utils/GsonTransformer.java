@@ -23,11 +23,12 @@ import io.dangernoodle.slack.objects.SlackMessageable;
 import io.dangernoodle.slack.objects.SlackSelf;
 import io.dangernoodle.slack.objects.SlackTeam;
 import io.dangernoodle.slack.objects.SlackUser;
+import io.dangernoodle.slack.objects.api.SlackWebResponse;
 
 
 public class GsonTransformer implements SlackJsonTransformer
 {
-    private static final Type PONG_MAP_TYPE_TOKEN = createTypeToken();
+    private static final Type PONG_MAP_TYPE_TOKEN = createPongTypeToken();
 
     private final Gson gson;
 
@@ -84,7 +85,8 @@ public class GsonTransformer implements SlackJsonTransformer
                                 .registerTypeAdapter(SlackPongEvent.class, deserializePong())
                                 .registerTypeAdapter(SlackSelf.Id.class, deserializeSelfId())
                                 .registerTypeAdapter(SlackTeam.Id.class, deserializeTeamId())
-                                .registerTypeAdapter(SlackUser.Id.class, deserializeUserId());
+                                .registerTypeAdapter(SlackUser.Id.class, deserializeUserId())
+                                .registerTypeAdapter(SlackWebResponse.class, deserializeWebResponse());
     }
 
     private JsonDeserializer<SlackEventType> deserializeEventType()
@@ -111,6 +113,14 @@ public class GsonTransformer implements SlackJsonTransformer
             SlackMessageEventType subType = (jsonElement == null) ? null : toSubtype(jsonElement.getAsString());
 
             return new SlackMessageEvent(message, subType);
+        };
+    }
+
+    private JsonDeserializer<SlackWebResponse> deserializeWebResponse()
+    {
+        return (json, typeOfT, context) -> {
+            Map<String, Object> response = context.deserialize(json, Map.class);
+            return new SlackWebResponse(response);
         };
     }
 
@@ -149,7 +159,7 @@ public class GsonTransformer implements SlackJsonTransformer
         return SlackMessageEventType.toEventType(subtype);
     }
 
-    private static Type createTypeToken()
+    private static Type createPongTypeToken()
     {
         return new TypeToken<Map<String, String>>()
         {

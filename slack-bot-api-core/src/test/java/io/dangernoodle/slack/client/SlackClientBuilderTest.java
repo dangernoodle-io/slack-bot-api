@@ -2,7 +2,6 @@ package io.dangernoodle.slack.client;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,9 +11,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import io.dangernoodle.slack.utils.ProxySettings;
-
-
 @RunWith(value = JUnitPlatform.class)
 public class SlackClientBuilderTest
 {
@@ -23,8 +19,6 @@ public class SlackClientBuilderTest
 
     @Mock
     private SlackProviderFactory mockFactory;
-
-    private ProxySettings mockProxy;
 
     private SlackClientBuilder builder;
 
@@ -56,9 +50,9 @@ public class SlackClientBuilderTest
 
     private void thenPassedFactoryWasUsed()
     {
-        verify(mockFactory).createHttpDelegate(mockProxy);
+        verify(mockFactory).createHttpDelegate();
         verify(mockFactory).createJsonTransformer();
-        verify(mockFactory).createClient(any(), eq(mockProxy));
+        verify(mockFactory).createClient(any());
     }
 
     private void thenLoadedFactoryWasUsed()

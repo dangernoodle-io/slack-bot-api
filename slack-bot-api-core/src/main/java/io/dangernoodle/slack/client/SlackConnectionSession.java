@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import io.dangernoodle.slack.objects.SlackIntegration;
 import io.dangernoodle.slack.objects.SlackMessageable;
 import io.dangernoodle.slack.objects.SlackSelf;
-import io.dangernoodle.slack.objects.SlackStartBotResponse;
 import io.dangernoodle.slack.objects.SlackTeam;
 import io.dangernoodle.slack.objects.SlackUser;
+import io.dangernoodle.slack.objects.api.SlackStartRtmResponse;
 
 
 public class SlackConnectionSession
@@ -80,7 +80,7 @@ public class SlackConnectionSession
         lastSentPingId.set(id);
     }
 
-    synchronized void updateSession(SlackStartBotResponse session)
+    synchronized void updateSession(SlackStartRtmResponse session)
     {
         self = session.getSelf();
         team = session.getTeam();
