@@ -22,6 +22,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
@@ -58,6 +59,7 @@ public class JettySlackWebSocketClientTest
     }
 
     @Test
+    @Disabled("causes corrupt jacoco.exec files on travis-ci")
     public void testConnectInterrupted() throws Exception
     {
         givenAClient();
