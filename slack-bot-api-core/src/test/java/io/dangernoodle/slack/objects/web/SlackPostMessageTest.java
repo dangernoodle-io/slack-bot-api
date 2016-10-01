@@ -24,7 +24,7 @@ public class SlackPostMessageTest extends AbstractSerializationTest
     {
         Builder builder = new Builder("text");
         toSerialize = builder.asUser(true)
-                             .attachment(new SlackAttachment.Builder().text("text").build())
+                             .attachment(new SlackAttachment.Builder().text("text"))
                              .iconEmoji("emoji")
                              .iconUrl("http://example.com/path/to/icon.png")
                              .linkify(true)

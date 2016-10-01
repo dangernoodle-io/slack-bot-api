@@ -6,5 +6,5 @@ import io.dangernoodle.slack.events.SlackEvent;
 @FunctionalInterface
 public interface SlackEventObserver<T extends SlackEvent>
 {
-    public void onEvent(T event, SlackClient session);
+    public void onEvent(T event, SlackClient client);
 }

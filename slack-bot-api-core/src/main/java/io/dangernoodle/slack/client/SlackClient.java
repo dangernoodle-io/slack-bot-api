@@ -114,19 +114,19 @@ public class SlackClient
         return rtmClient.isConnected();
     }
 
+    // TODO: typing indicator
+
     /**
      * Send a simple message over the websocket
-     *
-     * @param id messageble id (<code>chanel</code>, <code>group<code>, etc...)
-     * @param text message text
-     * @return message id
-     * @throws UncheckedIOException if there is an issue sending the message
      */
     public long send(SlackMessageable.Id id, String text) throws UncheckedIOException
     {
         return send(new SimpleMessage(nextMessageId(), id.value(), text)).id;
     }
 
+    /**
+     * Send a message with an attachment using the web api
+     */
     public SlackWebResponse send(SlackMessageable.Id id, SlackPostMessage.Builder builder) throws IOException
     {
         return webClient.send(id, builder);
@@ -135,7 +135,7 @@ public class SlackClient
     // visible for testing
     SlackConnectionMonitor createConnectionMonitor()
     {
-        return new SlackConnectionMonitor(this, settings.getHeartbeat(), settings.getReconnect());
+        return new SlackConnectionMonitor(this, settings.getHeartbeat(), settings.reconnect());
     }
 
     // visible for testing
@@ -148,17 +148,6 @@ public class SlackClient
     SlackObserverRegistry createObserverRegistry()
     {
         return new SlackObserverRegistry();
-    }
-
-    void logSessionEstablished(SlackStartRtmResponse response)
-    {
-        logger.info("slack session established!");
-        logger.info("");
-        logger.info("team: {} ({})", response.getTeam().getName(), response.getTeam().getId().value());
-        logger.info("self: {} ({})", response.getSelf().getName(), response.getSelf().getId().value());
-        logger.info("connected users: {}", response.getUsers().size());
-        logger.info("public channels: {}", response.getChannels().size());
-        logger.info("private channels: {}", response.getGroups().size());
     }
 
     long reconnect() throws ConnectException, IOException
@@ -185,8 +174,6 @@ public class SlackClient
             throw new ConnectException("websocket is not connected");
         }
 
-        logSessionEstablished(response);
-
         long nextMessageId = nextMessageId();
         session.updateLastPingId(nextMessageId);
 
@@ -196,7 +183,7 @@ public class SlackClient
     long sendPing()
     {
         // ok b/c it's always a copy
-        Map<String, String> args = settings.getPingArgs();
+        Map<String, String> args = settings.pingArgs();
 
         args.put(TYPE, PING);
         args.put(ID, String.valueOf(nextMessageId()));
@@ -212,14 +199,16 @@ public class SlackClient
 
     private void registerObservers()
     {
+        registry.addHelloObserver(SlackSessionObservers.helloObserver);
         registry.addPongObserver(SlackSessionObservers.pongObserver);
 
         // session channel updates
+        registry.addGroupLeftObserver(SlackSessionObservers.groupLeftObserver);
         registry.addGroupJoinedObserver(SlackSessionObservers.groupJoinedObserver);
         registry.addChannelCreatedObserver(SlackSessionObservers.channelCreatedObserver);
 
-        // TODO: session user updates
-        // registry.add
+        // user updates
+        registry.addUserChangeObserver(SlackSessionObservers.userChangedObserver);
     }
 
     private <T> T send(T object) throws UncheckedIOException

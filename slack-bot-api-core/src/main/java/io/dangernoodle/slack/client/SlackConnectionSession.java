@@ -14,13 +14,16 @@ import io.dangernoodle.slack.objects.api.SlackStartRtmResponse;
 
 public class SlackConnectionSession
 {
+    // visible for testing
     final Map<SlackMessageable.Id, SlackMessageable> channels;
 
+    // visible for testing
     final Map<SlackIntegration.Id, SlackIntegration> integrations;
 
+    // visible for testing
     final Map<SlackUser.Id, SlackUser> users;
 
-    private AtomicLong lastSentPingId;
+    private final AtomicLong lastSentPingId;
 
     private SlackSelf self;
 
@@ -63,6 +66,11 @@ public class SlackConnectionSession
     long getLastPingId()
     {
         return lastSentPingId.get();
+    }
+
+    void removeChannel(SlackMessageable.Id channelId)
+    {
+        channels.remove(channelId);
     }
 
     void updateChannels(SlackMessageable channel)

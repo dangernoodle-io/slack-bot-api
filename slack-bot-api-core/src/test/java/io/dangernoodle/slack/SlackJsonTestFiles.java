@@ -31,7 +31,11 @@ public enum SlackJsonTestFiles
     postMessage,
     pong,
     pongArgs,
+    replyTo,
+    replyToError,
     rtmStartResp,
+    unknownEvent,
+    unknownMessageEvent,
     userChange,
     userTyping;
 

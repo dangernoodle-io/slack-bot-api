@@ -31,6 +31,13 @@ public class SlackMessageEvent extends SlackEvent
         return message;
     }
 
+    /**
+     * Returns the message subtype.
+     * <p>
+     * Note: this method will return <code>null</code> if
+     * <code>SlackClientSettings.dispatchMessageSubtypes(boolean)</code> is disabled.
+     * </p>
+     */
     public SlackMessageEventType getSubType()
     {
         return subtype;

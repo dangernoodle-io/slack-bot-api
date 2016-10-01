@@ -7,12 +7,15 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.dangernoodle.slack.events.SlackErrorEvent;
 import io.dangernoodle.slack.events.SlackEvent;
 import io.dangernoodle.slack.events.SlackEventType;
 import io.dangernoodle.slack.events.SlackHelloEvent;
 import io.dangernoodle.slack.events.SlackMessageEvent;
 import io.dangernoodle.slack.events.SlackMessageEventType;
 import io.dangernoodle.slack.events.SlackPongEvent;
+import io.dangernoodle.slack.events.SlackReplyToEvent;
+import io.dangernoodle.slack.events.SlackUnknownEvent;
 import io.dangernoodle.slack.events.channel.SlackChannelCreatedEvent;
 import io.dangernoodle.slack.events.channel.SlackChannelDeletedEvent;
 import io.dangernoodle.slack.events.channel.SlackChannelJoinedEvent;
@@ -29,7 +32,7 @@ import io.dangernoodle.slack.events.user.SlackUserTypingEvent;
  */
 public class SlackObserverRegistry
 {
-    private final Map<SlackMessageEventType, Vector<SlackEventObserver<? extends SlackMessageEvent>>> messageObservers;
+    private final Map<SlackMessageEventType, Vector<SlackEventObserver<? extends SlackEvent>>> messageObservers;
 
     private final Map<SlackEventType, Vector<SlackEventObserver<? extends SlackEvent>>> observers;
 
@@ -41,7 +44,6 @@ public class SlackObserverRegistry
 
     /**
      * @param observer asdf
-     *
      * @since 0.1.0
      */
     public void addChannelCreatedObserver(SlackEventObserver<SlackChannelCreatedEvent> observer)
@@ -79,6 +81,14 @@ public class SlackObserverRegistry
     public void addChannelRenameObserver(SlackEventObserver<SlackChannelRenameEvent> observer)
     {
         addObserver(SlackEventType.CHANNEL_RENAME, observer);
+    }
+
+    /**
+     * @since 0.1.0
+     */
+    public void addErrorObserver(SlackEventObserver<SlackErrorEvent> observer)
+    {
+        addObserver(SlackEventType.ERROR, observer);
     }
 
     /**
@@ -148,6 +158,30 @@ public class SlackObserverRegistry
     /**
      * @since 0.1.0
      */
+    public void addReplyToObserver(SlackEventObserver<SlackReplyToEvent> observer)
+    {
+        addObserver(SlackEventType.REPLY_TO, observer);
+    }
+
+    /**
+     * @since 0.1.0
+     */
+    public void addUnknownMessageObserver(SlackEventObserver<SlackUnknownEvent> observer)
+    {
+       addObserver(SlackMessageEventType.UNKNOWN, observer);
+    }
+
+    /**
+     * @since 0.1.0
+     */
+    public void addUnknownObserver(SlackEventObserver<SlackUnknownEvent> observer)
+    {
+        addObserver(SlackEventType.UNKNOWN, observer);
+    }
+
+    /**
+     * @since 0.1.0
+     */
     public void addUserChangeObserver(SlackEventObserver<SlackUserChangeEvent> observer)
     {
         addObserver(SlackEventType.USER_CHANGE, observer);
@@ -199,6 +233,14 @@ public class SlackObserverRegistry
     public void removeChannelRenameObservers(SlackEventObserver<SlackChannelRenameEvent> observer)
     {
         removeObserver(SlackEventType.CHANNEL_RENAME, observer);
+    }
+
+    /**
+     * @since 0.1.0
+     */
+    public void removeErrorObserver(SlackEventObserver<SlackErrorEvent> observer)
+    {
+        removeObserver(SlackEventType.ERROR, observer);
     }
 
     /**
@@ -276,6 +318,30 @@ public class SlackObserverRegistry
     /**
      * @since 0.1.0
      */
+    public void removeReplyToObserver(SlackEventObserver<SlackReplyToEvent> observer)
+    {
+        removeObserver(SlackEventType.REPLY_TO, observer);
+    }
+
+    /**
+     * @since 0.1.0
+     */
+    public void removeUnknownMessageObserver(SlackEventObserver<SlackUnknownEvent> observer)
+    {
+        removeObserver(SlackMessageEventType.UNKNOWN, observer);
+    }
+
+    /**
+     * @since 0.1.0
+     */
+    public void removeUnknownObserver(SlackEventObserver<SlackUnknownEvent> observer)
+    {
+        removeObserver(SlackEventType.UNKNOWN, observer);
+    }
+
+    /**
+     * @since 0.1.0
+     */
     public void removeUserChangeObserver(SlackEventObserver<SlackUserChangeEvent> observer)
     {
         removeObserver(SlackEventType.USER_CHANGE, observer);
@@ -330,7 +396,11 @@ public class SlackObserverRegistry
         observers.computeIfAbsent(eventType, k -> new Vector<>()).add(observer);
     }
 
-    private <T extends SlackMessageEvent> void addObserver(SlackMessageEventType eventType, SlackEventObserver<T> observer)
+    /*
+     * the 'SlackMessageEvent' class doesn't really lend well to the idea of a 'SlackUnknownMessageEvent', so for now
+     * let it be a more relaxed bound
+     */
+    private <T extends SlackEvent> void addObserver(SlackMessageEventType eventType, SlackEventObserver<T> observer)
     {
         messageObservers.computeIfAbsent(eventType, k -> new Vector<>()).add(observer);
     }
