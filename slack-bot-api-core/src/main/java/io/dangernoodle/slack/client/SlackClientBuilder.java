@@ -26,7 +26,7 @@ public class SlackClientBuilder
         this.clientSettings = clientSettings;
     }
 
-    public SlackClient build() throws IllegalStateException
+    public SlackClient build()
     {
         this.providerFactory = getSlackProviderFactory();
 

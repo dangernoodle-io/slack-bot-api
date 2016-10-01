@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * Configure the <code>SlackClient</code>
+ *
+ * @since 0.1.0
+ */
 public class SlackClientSettings
 {
     private String authToken;
@@ -14,7 +19,7 @@ public class SlackClientSettings
 
     private int heartbeat = 15;
 
-    private Map<String, String> pingArgs = new HashMap<>();
+    private final Map<String, String> pingArgs;
 
     private boolean reconnect;
 
@@ -22,12 +27,49 @@ public class SlackClientSettings
     {
         this.authToken = authToken;
         this.reconnect = true;
+
+        this.dispatchMessageSubtypes = true;
+        this.pingArgs = new HashMap<>();
     }
 
-    public SlackClientSettings addPingArg(String name, String value)
+    public boolean dispatchMessageSubtypes()
     {
-        pingArgs.put(name, value);
+        return dispatchMessageSubtypes;
+    }
+
+    /**
+     * Toggle dispatching message subtypes to individual handlers
+     * <p>
+     * Default is <code>true</code> - if <code>false</code>, all messages will be dispatched to the
+     * <code>message posted</code> event observer.
+     * <p>
+     */
+    public SlackClientSettings dispatchMessageSubtypes(boolean dispatch)
+    {
+        this.dispatchMessageSubtypes = dispatch;
         return this;
+    }
+
+    public boolean filterSelfMessages()
+    {
+        return filterSelfMessages;
+    }
+
+    /**
+     * Toggle automatic filtering of messages posted by the bot
+     * <p>
+     * Default is <code>true</code>
+     * <p>
+     */
+    public SlackClientSettings filterSelfMessages(boolean filterSelfMessages)
+    {
+        this.filterSelfMessages = filterSelfMessages;
+        return this;
+    }
+
+    public String getAuthToken()
+    {
+        return authToken;
     }
 
     public int getHeartbeat()
@@ -35,53 +77,40 @@ public class SlackClientSettings
         return heartbeat;
     }
 
-    public Map<String, String> getPingArgs()
+    public SlackClientSettings heartbeat(int heartbeat) throws IllegalArgumentException
+    {
+        if (heartbeat < 1)
+        {
+            throw new IllegalArgumentException("heartbeat must be greater then 0");
+        }
+
+        this.heartbeat = heartbeat;
+        return this;
+    }
+
+    /**
+     * Additional <code>name</code>/<code>value</code> pairs that will be sent with <code>ping</code> requests.
+     */
+    public SlackClientSettings pingArg(String name, String value)
+    {
+        pingArgs.put(name, value);
+        return this;
+    }
+
+    public Map<String, String> pingArgs()
     {
         // always a copy
         return new HashMap<>(pingArgs);
     }
 
-    public boolean getReconnect()
+    public boolean reconnect()
     {
         return reconnect;
     }
 
-    public boolean isDispatchMessageSubtypes()
-    {
-        return dispatchMessageSubtypes;
-    }
-
-    public boolean isFilterSelfMessages()
-    {
-        return filterSelfMessages;
-    }
-
-    public SlackClientSettings setDispatchMessageSubtypes(boolean dispatch)
-    {
-        this.dispatchMessageSubtypes = dispatch;
-        return this;
-    }
-
-    public SlackClientSettings setFilterSelfMessages(boolean filterSelfMessages)
-    {
-        this.filterSelfMessages = filterSelfMessages;
-        return this;
-    }
-
-    public SlackClientSettings setHeartbeat(int heartbeat)
-    {
-        this.heartbeat = heartbeat;
-        return this;
-    }
-
-    public SlackClientSettings setReconnect(boolean reconnect)
+    public SlackClientSettings reconnect(boolean reconnect)
     {
         this.reconnect = reconnect;
         return this;
-    }
-
-    public String getAuthToken()
-    {
-        return authToken;
     }
 }

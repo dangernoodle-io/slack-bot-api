@@ -3,17 +3,20 @@ package io.dangernoodle.slack.objects.api;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 
 public class SlackWebResponse
 {
+    private final String rawResponse;
     private final Map<String, Object> response;
 
-    public SlackWebResponse(Map<String, Object> response)
+    public SlackWebResponse(Map<String, Object> response, String rawResponse)
     {
         this.response = response;
+        this.rawResponse = rawResponse;
     }
 
     public String getError()
@@ -21,9 +24,15 @@ public class SlackWebResponse
         return get("error").orElse(null);
     }
 
+    public String getRawResponse()
+    {
+        return rawResponse;
+    }
+
     public Map<String, Object> getResponse()
     {
-        return response;
+        // always a copy...
+        return new HashMap<>(response);
     }
 
     public Collection<String> getWarnings()

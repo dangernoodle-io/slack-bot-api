@@ -6,6 +6,8 @@ public interface SlackJsonTransformer
 
     static final String SUBTYPE = "subtype";
 
+    static final String OK = "ok";
+
     static final String PING = "ping";
 
     static final String REPLY_TO = "reply_to";
@@ -35,5 +37,7 @@ public interface SlackJsonTransformer
         String getType();
 
         String getUser();
+
+        boolean isReplyTo();
     }
 }

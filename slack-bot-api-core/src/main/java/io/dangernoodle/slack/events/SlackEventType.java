@@ -111,6 +111,8 @@ public enum SlackEventType
     REACTION_REMOVED,
     /** experimental (not currently supported */
     RECONNECT_URL,
+    /** message reply */
+    REPLY_TO,
     /** star was added */
     STAR_ADDED,
     /** star was removed */

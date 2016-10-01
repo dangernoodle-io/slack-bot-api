@@ -104,9 +104,12 @@ public class SlackClientTest
     @Test
     public void testDefaultObserversRegistered()
     {
-        thenPongListenerRegistered();
+        thenHelloObserverRegistered();
+        thenPongObserverRegistered();
+        thenGroupLeftObserverRegistered();
         thenGroupJoinedObserverRegistered();
         thenChannelCreatedOberserverRegistered();
+        thenUserChangeObserveRegistered();
 
         // safe guard to make sure this test is updated for all default observers
         thenNoOtherObserversRegistered();
@@ -239,12 +242,6 @@ public class SlackClientTest
                 realRegistry = super.createObserverRegistry();
                 return mockRegistry;
             }
-
-            @Override
-            void logSessionEstablished(SlackStartRtmResponse response)
-            {
-                // i don't feel like mocking out the calls for log statements
-            }
         };
     }
 
@@ -280,7 +277,7 @@ public class SlackClientTest
     private void givenClientSettingsForMonitoring()
     {
         when(mockSettings.getHeartbeat()).thenReturn(1);
-        when(mockSettings.getReconnect()).thenReturn(true);
+        when(mockSettings.reconnect()).thenReturn(true);
     }
 
     private void givenSendWillThrowAnException() throws IOException
@@ -304,6 +301,16 @@ public class SlackClientTest
         verify(mockRegistry).addChannelCreatedObserver(SlackSessionObservers.channelCreatedObserver);
     }
 
+    private void thenGroupLeftObserverRegistered()
+    {
+        verify(mockRegistry).addGroupLeftObserver(SlackSessionObservers.groupLeftObserver);
+    }
+
+    private void thenHelloObserverRegistered()
+    {
+        verify(mockRegistry).addHelloObserver(SlackSessionObservers.helloObserver);
+    }
+
     private void thenMessageWasSent() throws Exception
     {
         verify(mockRtmClient).send(captor.capture());
@@ -321,8 +328,8 @@ public class SlackClientTest
 
     private void thenMonitorIsConfiguredCorrectly()
     {
-        assertEquals(1, realMonitor.getHeartbeat());
-        assertEquals(true, realMonitor.getReconnect());
+        assertEquals(1, realMonitor.heartbeat);
+        assertEquals(true, realMonitor.reconnect);
     }
 
     private void thenMonitorIsStarted()
@@ -355,7 +362,7 @@ public class SlackClientTest
         verify(mockRtmClient).send(any());
     }
 
-    private void thenPongListenerRegistered()
+    private void thenPongObserverRegistered()
     {
         verify(mockRegistry).addPongObserver(SlackSessionObservers.pongObserver);
     }
@@ -384,6 +391,11 @@ public class SlackClientTest
     {
         assertNotNull(actualException);
         assertThat(actualException, instanceOf(UncheckedIOException.class));
+    }
+
+    private void thenUserChangeObserveRegistered()
+    {
+        verify(mockRegistry).addUserChangeObserver(SlackSessionObservers.userChangedObserver);
     }
 
     private void whenCheckIfConnected()

@@ -13,6 +13,8 @@ import io.dangernoodle.slack.events.SlackHelloEvent;
 import io.dangernoodle.slack.events.SlackMessageEvent;
 import io.dangernoodle.slack.events.SlackMessageEventType;
 import io.dangernoodle.slack.events.SlackPongEvent;
+import io.dangernoodle.slack.events.SlackReplyToEvent;
+import io.dangernoodle.slack.events.SlackUnknownEvent;
 import io.dangernoodle.slack.events.channel.SlackChannelCreatedEvent;
 import io.dangernoodle.slack.events.channel.SlackChannelDeletedEvent;
 import io.dangernoodle.slack.events.channel.SlackChannelJoinedEvent;
@@ -44,7 +46,7 @@ public class SlackWebSocketAssistant
     {
         if (logger.isTraceEnabled())
         {
-            logger.trace("incoming event: {}", transformer.prettyPrint(message));
+            logger.trace("incoming event:\n{}", transformer.prettyPrint(message));
         }
 
         SlackJsonObject object = transformer.deserialize(message);
@@ -58,9 +60,14 @@ public class SlackWebSocketAssistant
 
             dispatchEvent(eventType, subType, object);
         }
+        else if (object.isReplyTo())
+        {
+            dispatch(SlackEventType.REPLY_TO, object, SlackReplyToEvent.class);
+        }
         else
         {
-            // TODO: handle message acknowledgements?
+            // not sure this could ever happen, but just in case...
+            logger.warn("unknown incoming slack message:\n{}", transformer.prettyPrint(message));
         }
     }
 
@@ -72,10 +79,10 @@ public class SlackWebSocketAssistant
     private <E, T extends SlackEvent> void dispatch(E eventType, SlackJsonObject object, Class<T> clazz)
     {
         T event = transformer.deserialize(object, clazz);
-        logger.debug("dispatching event {}", event);
+        logger.debug("dispatching event type [{}] - event: {}", event.getType().toType(), event);
 
         client.getObserverRegistry()
-              .findObservers(event.getType())
+              .findObservers(eventType)
               .forEach(observer -> observer.onEvent(event, client));
     }
 
@@ -93,7 +100,8 @@ public class SlackWebSocketAssistant
             SlackMessageEventType messageEventType = SlackMessageEventType.toEventType(subType);
             if (messageEventType == SlackMessageEventType.UNKNOWN)
             {
-                logger.warn("unhandled message event occurred: {}", transformer.prettyPrint(object.getRawJson()));
+                logUnknownEvent(object, true);
+                dispatch(SlackMessageEventType.UNKNOWN, object, SlackUnknownEvent.class);
             }
             else
             {
@@ -108,7 +116,7 @@ public class SlackWebSocketAssistant
 
     private boolean dispatchAsMessageSubtype(SlackEventType eventType, String subType)
     {
-        return (eventType == SlackEventType.MESSAGE && subType != null && settings.isDispatchMessageSubtypes());
+        return (eventType == SlackEventType.MESSAGE && subType != null && settings.dispatchMessageSubtypes());
     }
 
     private void dispatchEvent(SlackEventType eventType, String subType, SlackJsonObject object)
@@ -268,21 +276,22 @@ public class SlackWebSocketAssistant
                 break;
             case UNKNOWN:
             default:
-                logUnknownEvent(object);
+                logUnknownEvent(object, false);
+                dispatch(eventType, object, SlackUnknownEvent.class);
                 break;
-        }
-    }
-
-    private void logUnknownEvent(SlackJsonObject object)
-    {
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("unhandled event occurred: {}", transformer.prettyPrint(object.getRawJson()));
         }
     }
 
     private boolean filterSelfUserMessages(SlackJsonObject object)
     {
-        return settings.isFilterSelfMessages() && client.getSession().getSelf().getId().value().equals(object.getUser());
+        return settings.filterSelfMessages() && client.getSession().getSelf().getId().value().equals(object.getUser());
+    }
+
+    private void logUnknownEvent(SlackJsonObject object, boolean message)
+    {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("unhandled {}event occurred: {}", message ? "message " : "", transformer.prettyPrint(object.getRawJson()));
+        }
     }
 }

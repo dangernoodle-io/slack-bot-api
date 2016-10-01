@@ -1,0 +1,9 @@
+{
+  "type": "message",
+  "deleted_ts": "1474235199.000002",
+  "subtype": "some_type_that_will_never_register_in_tests",
+  "hidden": true,
+  "channel": "C024BE91L",
+  "event_ts": "1474235276.589814",
+  "ts": "1474235276.000005"
+}

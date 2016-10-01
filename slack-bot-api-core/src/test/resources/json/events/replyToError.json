@@ -1,0 +1,8 @@
+{
+    "ok": false,
+    "reply_to": 1,
+    "error": {
+        "code": 2,
+        "msg": "message text is missing"
+    }
+}

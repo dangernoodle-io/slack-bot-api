@@ -38,9 +38,9 @@ public class SlackPostMessage
     {
         private SlackPostMessage message = new SlackPostMessage();
 
-        public Builder(SlackAttachment attachment)
+        public Builder(SlackAttachment.Builder builder)
         {
-            attachment(attachment);
+            attachment(builder);
         }
 
         public Builder(String text)
@@ -54,14 +54,14 @@ public class SlackPostMessage
             return this;
         }
 
-        public Builder attachment(SlackAttachment attachment)
+        public Builder attachment(SlackAttachment.Builder builder)
         {
             if (message.attachments == null)
             {
                 message.attachments = new ArrayList<>();
             }
 
-            message.attachments.add(attachment);
+            message.attachments.add(builder.build());
             return this;
         }
 

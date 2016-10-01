@@ -14,17 +14,17 @@ class SlackConnectionMonitor
 {
     private static final Logger logger = LoggerFactory.getLogger(SlackConnectionMonitor.class);
 
+    final int heartbeat;
+
+    final boolean reconnect;
+
     private final SlackClient client;
 
     private final ScheduledExecutorService executorService;
 
     private ScheduledFuture<?> future;
 
-    private volatile int heartbeat;
-
     private long lastPingId;
-
-    private volatile boolean reconnect;
 
     SlackConnectionMonitor(SlackClient client, int heartbeat, boolean reconnect)
     {
@@ -35,25 +35,6 @@ class SlackConnectionMonitor
         this.executorService = createExecutorService();
     }
 
-    public int getHeartbeat()
-    {
-        return heartbeat;
-    }
-
-    public boolean getReconnect()
-    {
-        return reconnect;
-    }
-
-// TODO: jmx support
-//    public void adjustHeartbeat(int heartbeat)
-//    {
-//        this.heartbeat = heartbeat;
-//
-//        stop();
-//        start();
-//    }
-
     @Override
     protected void finalize() throws Throwable
     {
@@ -61,6 +42,7 @@ class SlackConnectionMonitor
         super.finalize();
     }
 
+    // visible for testing
     ScheduledExecutorService createExecutorService()
     {
         return Executors.newSingleThreadScheduledExecutor(this::createThread);

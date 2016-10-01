@@ -17,6 +17,7 @@ import io.dangernoodle.slack.events.SlackEventType;
 import io.dangernoodle.slack.events.SlackMessageEvent;
 import io.dangernoodle.slack.events.SlackMessageEventType;
 import io.dangernoodle.slack.events.SlackPongEvent;
+import io.dangernoodle.slack.events.SlackUnknownEvent;
 import io.dangernoodle.slack.objects.SlackIntegration;
 import io.dangernoodle.slack.objects.SlackMessage;
 import io.dangernoodle.slack.objects.SlackMessageable;
@@ -85,6 +86,7 @@ public class GsonTransformer implements SlackJsonTransformer
                                 .registerTypeAdapter(SlackPongEvent.class, deserializePong())
                                 .registerTypeAdapter(SlackSelf.Id.class, deserializeSelfId())
                                 .registerTypeAdapter(SlackTeam.Id.class, deserializeTeamId())
+                                .registerTypeAdapter(SlackUnknownEvent.class, deserializeUnknownEvent())
                                 .registerTypeAdapter(SlackUser.Id.class, deserializeUserId())
                                 .registerTypeAdapter(SlackWebResponse.class, deserializeWebResponse());
     }
@@ -116,14 +118,6 @@ public class GsonTransformer implements SlackJsonTransformer
         };
     }
 
-    private JsonDeserializer<SlackWebResponse> deserializeWebResponse()
-    {
-        return (json, typeOfT, context) -> {
-            Map<String, Object> response = context.deserialize(json, Map.class);
-            return new SlackWebResponse(response);
-        };
-    }
-
     private JsonDeserializer<SlackPongEvent> deserializePong()
     {
         return (json, typeOfT, context) -> {
@@ -144,9 +138,19 @@ public class GsonTransformer implements SlackJsonTransformer
         return (json, typeOfT, context) -> new SlackTeam.Id(json.getAsString());
     }
 
+    private JsonDeserializer<SlackUnknownEvent> deserializeUnknownEvent()
+    {
+        return (json, typeOfT, context) -> new SlackUnknownEvent(context.deserialize(json, Map.class), json.toString());
+    }
+
     private JsonDeserializer<SlackUser.Id> deserializeUserId()
     {
         return (json, typeOfT, context) -> new SlackUser.Id(json.getAsString());
+    }
+
+    private JsonDeserializer<SlackWebResponse> deserializeWebResponse()
+    {
+        return (json, typeOfT, context) -> new SlackWebResponse(context.deserialize(json, Map.class), json.getAsString());
     }
 
     private long toLong(String value)
@@ -198,6 +202,12 @@ public class GsonTransformer implements SlackJsonTransformer
         public String getUser()
         {
             return get(USER);
+        }
+
+        @Override
+        public boolean isReplyTo()
+        {
+            return jsonObject.has(OK) && jsonObject.has(REPLY_TO);
         }
 
         private String get(String key)
