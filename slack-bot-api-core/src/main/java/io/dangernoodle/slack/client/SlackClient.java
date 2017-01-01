@@ -19,6 +19,7 @@ import io.dangernoodle.slack.client.rtm.SlackWebSocketClient;
 import io.dangernoodle.slack.client.web.SlackWebClient;
 import io.dangernoodle.slack.events.SlackEventType;
 import io.dangernoodle.slack.objects.SlackMessageable;
+import io.dangernoodle.slack.objects.SlackUser;
 import io.dangernoodle.slack.objects.api.SlackPostMessage;
 import io.dangernoodle.slack.objects.api.SlackStartRtmResponse;
 import io.dangernoodle.slack.objects.api.SlackWebResponse;
@@ -109,6 +110,11 @@ public class SlackClient
         return webClient;
     }
 
+    public SlackUser getSelfUser()
+    {
+        return session.getSelfUser();
+    }
+
     public boolean isConnected()
     {
         return rtmClient.isConnected();
@@ -124,12 +130,24 @@ public class SlackClient
         return send(new SimpleMessage(nextMessageId(), id.value(), text)).id;
     }
 
+    public long send(SlackMessageable.Id id, String format, Object... args) throws UncheckedIOException
+    {
+        return send(id, String.format(format, args));
+    }
+
     /**
      * Send a message with an attachment using the web api
      */
-    public SlackWebResponse send(SlackMessageable.Id id, SlackPostMessage.Builder builder) throws IOException
+    public SlackWebResponse send(SlackMessageable.Id id, SlackPostMessage.Builder builder) throws UncheckedIOException
     {
-        return webClient.send(id, builder);
+        try
+        {
+            return webClient.send(id, builder);
+        }
+        catch (IOException e)
+        {
+            throw new UncheckedIOException(e);
+        }
     }
 
     // visible for testing

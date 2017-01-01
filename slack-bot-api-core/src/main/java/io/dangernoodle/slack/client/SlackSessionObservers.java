@@ -12,6 +12,7 @@ import io.dangernoodle.slack.events.channel.SlackChannelLeftEvent;
 import io.dangernoodle.slack.events.user.SlackUserChangeEvent;
 import io.dangernoodle.slack.objects.SlackChannel;
 import io.dangernoodle.slack.objects.SlackMessageable;
+import io.dangernoodle.slack.objects.SlackTeam;
 import io.dangernoodle.slack.objects.SlackUser;
 
 
@@ -52,15 +53,19 @@ class SlackSessionObservers
     static final SlackEventObserver<SlackHelloEvent> helloObserver = (event, client) -> {
         SlackConnectionSession session = client.getSession();
 
+        SlackTeam team = session.getTeam();
+        logger.info("team: {} ({})", team.getName(), team.getId().value());
+
+        SlackUser self = session.getSelfUser();
+        logger.info("self: {} ({})", self.getName(), self.getId().value());
+
         logger.info("slack session established!");
-        logger.info("team: {} ({})", session.getTeam().getName(), session.getTeam().getId().value());
-        logger.info("self: {} ({})", session.getSelf().getName(), session.getSelf().getId().value());
     };
 
     /** pong event observer for the heartbeat thread */
     static final SlackEventObserver<SlackPongEvent> pongObserver = (event, client) -> {
         client.getSession().updateLastPingId(event.getId());
-        logger.debug("pong event received in [{}]ms", System.currentTimeMillis() - event.getTime());
+        logger.debug("pong event received in {} ms", System.currentTimeMillis() - event.getTime());
     };
 
     /** updates the sesion when a user has changed */

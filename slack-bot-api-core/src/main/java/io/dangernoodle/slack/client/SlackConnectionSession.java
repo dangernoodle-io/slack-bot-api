@@ -29,6 +29,8 @@ public class SlackConnectionSession
 
     private SlackTeam team;
 
+    private SlackUser user;
+
     public SlackConnectionSession()
     {
         this.lastSentPingId = new AtomicLong();
@@ -53,9 +55,9 @@ public class SlackConnectionSession
         return findById(id, users);
     }
 
-    public SlackSelf getSelf()
+    public SlackUser getSelfUser()
     {
-        return self;
+        return user;
     }
 
     public SlackTeam getTeam()
@@ -102,6 +104,8 @@ public class SlackConnectionSession
 
         session.getUsers().forEach(this::updateUsers);
         session.getIntegrations().forEach(this::updateIntegrations);
+
+        user = findUser(self.getId());
     }
 
     void updateUsers(SlackUser user)

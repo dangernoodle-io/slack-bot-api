@@ -1,6 +1,5 @@
 package io.dangernoodle.slack.objects.api;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +100,11 @@ public class SlackPostMessage
         {
             message.text = text;
             return this;
+        }
+
+        public Builder text(String format, Object... args)
+        {
+            return text(String.format(format, args));
         }
 
         public Builder unfurlLinks(boolean unfurlLinks)

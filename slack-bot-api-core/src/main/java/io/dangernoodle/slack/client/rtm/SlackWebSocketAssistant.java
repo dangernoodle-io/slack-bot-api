@@ -284,7 +284,7 @@ public class SlackWebSocketAssistant
 
     private boolean filterSelfUserMessages(SlackJsonObject object)
     {
-        return settings.filterSelfMessages() && client.getSession().getSelf().getId().value().equals(object.getUser());
+        return settings.filterSelfMessages() && client.getSession().getSelfUser().getId().value().equals(object.getUser());
     }
 
     private void logUnknownEvent(SlackJsonObject object, boolean message)

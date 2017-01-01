@@ -9,7 +9,7 @@ public class SlackSelf
 {
     private long created;
 
-    private Id id;
+    private SlackUser.Id id;
 
     private SlackPresence manualPresence;
 
@@ -22,7 +22,7 @@ public class SlackSelf
         return created;
     }
 
-    public Id getId()
+    public SlackUser.Id getId()
     {
         return id;
     }
@@ -40,20 +40,5 @@ public class SlackSelf
     public Map<String, Object> getPrefs()
     {
         return (prefs == null) ? Collections.emptyMap() : new HashMap<>(prefs);
-    }
-
-    public static class Id
-    {
-        private String id;
-
-        public Id(String id)
-        {
-            this.id = id;
-        }
-
-        public String value()
-        {
-            return id;
-        }
     }
 }

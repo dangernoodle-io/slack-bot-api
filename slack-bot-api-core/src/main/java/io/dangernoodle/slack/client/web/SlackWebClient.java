@@ -22,6 +22,8 @@ import io.dangernoodle.slack.objects.api.SlackWebResponse;
 
 public class SlackWebClient
 {
+    private static final String ATTACHMENTS = "attachments";
+
     private static final Logger logger = LoggerFactory.getLogger(SlackWebClient.class);
 
     private final SlackHttpDelegate httpDelegate;
@@ -47,7 +49,10 @@ public class SlackWebClient
 
     public SlackWebResponse send(SlackMessageable.Id id, SlackPostMessage.Builder builder) throws IOException
     {
-        return post(chatPostMessage, builder.build(settings.getAuthToken(), id), SlackWebResponse.class);
+        Map<String, Object> serialized = serialize(builder.build(settings.getAuthToken(), id));
+        serialized.put(ATTACHMENTS, jsonTransformer.serialize(serialized.get(ATTACHMENTS)));
+
+        return post(chatPostMessage.toUrl(), serialized, SlackWebResponse.class);
     }
 
     public SlackWebResponse upload(SlackFileUpload.Builder builder, SlackMessageable.Id... ids) throws IOException
@@ -63,19 +68,22 @@ public class SlackWebClient
 
     private void logRequest(SlackWebMethods command, Map<String, Object> serialized, String response)
     {
+        logRequest(command.toUrl(), serialized, response);
+    }
+
+    private void logRequest(String command, Map<String, Object> serialized, String response)
+    {
         if (logger.isTraceEnabled())
         {
-            logger.trace("url: {} - body: {}", command.toUrl(), serialized);
+            logger.trace("url: {} - body: {}", command, serialized);
             logger.trace("response: {}", jsonTransformer.prettyPrint(response));
         }
     }
 
-    private <T> T post(SlackWebMethods command, Object object, Class<T> clazz) throws IOException
+    private <T> T post(String url, Map<String, Object> serialized, Class<T> clazz) throws IOException
     {
-        Map<String, Object> serialized = serialize(object);
-        String response = httpDelegate.post(command.toUrl(), serialized);
-
-        logRequest(command, serialized, response);
+        String response = httpDelegate.post(url, serialized);
+        logRequest(url, serialized, response);
 
         return jsonTransformer.deserialize(response, clazz);
     }

@@ -1,6 +1,5 @@
 package io.dangernoodle.slack.objects.api;
 
-import java.net.URL;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -124,6 +123,11 @@ public class SlackAttachment
             return this;
         }
 
+        public Builder fallback(String format, Object... args)
+        {
+            return fallback(String.format(format, args));
+        }
+
         public Builder footer(String footer)
         {
             attachment.footer = footer;
@@ -156,10 +160,20 @@ public class SlackAttachment
             return this;
         }
 
+        public Builder pretext(String format, Object... args)
+        {
+            return pretext(String.format(format, args));
+        }
+
         public Builder text(String text)
         {
             attachment.text = text;
             return this;
+        }
+
+        public Builder text(String format, Object... args)
+        {
+            return text(String.format(format, args));
         }
 
         public Builder thumbUrl(String thumbUrl)
@@ -178,6 +192,11 @@ public class SlackAttachment
         {
             attachment.title = title;
             return this;
+        }
+
+        public Builder title(String format, Object... args)
+        {
+            return title(String.format(format, args));
         }
 
         public Builder titleLink(String titleLink)
