@@ -148,7 +148,7 @@ public class SlackConnectionSessionTest
 
     private void thenSelfIsNotNull()
     {
-        assertNotNull(session.getSelf());
+        assertNotNull(session.getSelfUser());
     }
 
     private void thenTeamIsNotNull()

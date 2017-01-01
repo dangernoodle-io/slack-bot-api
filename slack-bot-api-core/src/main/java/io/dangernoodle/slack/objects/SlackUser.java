@@ -43,6 +43,11 @@ public class SlackUser
         return id;
     }
 
+    public String asLink()
+    {
+        return id.asLink();
+    }
+
     public String getName()
     {
         return name;
@@ -130,6 +135,11 @@ public class SlackUser
         public Id(String id)
         {
             this.id = id;
+        }
+
+        public String asLink()
+        {
+            return String.format("<@%s>", id);
         }
 
         @Override

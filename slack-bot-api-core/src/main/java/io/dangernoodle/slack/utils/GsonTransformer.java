@@ -21,7 +21,6 @@ import io.dangernoodle.slack.events.SlackUnknownEvent;
 import io.dangernoodle.slack.objects.SlackIntegration;
 import io.dangernoodle.slack.objects.SlackMessage;
 import io.dangernoodle.slack.objects.SlackMessageable;
-import io.dangernoodle.slack.objects.SlackSelf;
 import io.dangernoodle.slack.objects.SlackTeam;
 import io.dangernoodle.slack.objects.SlackUser;
 import io.dangernoodle.slack.objects.api.SlackWebResponse;
@@ -84,7 +83,6 @@ public class GsonTransformer implements SlackJsonTransformer
                                 .registerTypeAdapter(SlackIntegration.Id.class, deserializeIntegrationId())
                                 .registerTypeAdapter(SlackMessageable.Id.class, deserializeMessageableId())
                                 .registerTypeAdapter(SlackPongEvent.class, deserializePong())
-                                .registerTypeAdapter(SlackSelf.Id.class, deserializeSelfId())
                                 .registerTypeAdapter(SlackTeam.Id.class, deserializeTeamId())
                                 .registerTypeAdapter(SlackUnknownEvent.class, deserializeUnknownEvent())
                                 .registerTypeAdapter(SlackUser.Id.class, deserializeUserId())
@@ -128,11 +126,6 @@ public class GsonTransformer implements SlackJsonTransformer
         };
     }
 
-    private JsonDeserializer<SlackSelf.Id> deserializeSelfId()
-    {
-        return (json, typeOfT, context) -> new SlackSelf.Id(json.getAsString());
-    }
-
     private JsonDeserializer<SlackTeam.Id> deserializeTeamId()
     {
         return (json, typeOfT, context) -> new SlackTeam.Id(json.getAsString());
@@ -150,7 +143,7 @@ public class GsonTransformer implements SlackJsonTransformer
 
     private JsonDeserializer<SlackWebResponse> deserializeWebResponse()
     {
-        return (json, typeOfT, context) -> new SlackWebResponse(context.deserialize(json, Map.class), json.getAsString());
+        return (json, typeOfT, context) -> new SlackWebResponse(context.deserialize(json, Map.class), json.toString());
     }
 
     private long toLong(String value)

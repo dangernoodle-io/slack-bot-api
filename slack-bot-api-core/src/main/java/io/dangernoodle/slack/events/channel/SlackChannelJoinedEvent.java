@@ -5,7 +5,7 @@ import io.dangernoodle.slack.objects.SlackChannel;
 
 
 /**
- * Represents a <code>channel_joined</code> event
+ * Represents a <code>channel_joined</code> or a <code>group_joined<code> event
  *
  * @since 0.1.0
  */
