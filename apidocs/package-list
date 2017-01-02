@@ -1,0 +1,9 @@
+io.dangernoodle.slack.client
+io.dangernoodle.slack.client.rtm
+io.dangernoodle.slack.client.web
+io.dangernoodle.slack.events
+io.dangernoodle.slack.events.channel
+io.dangernoodle.slack.events.user
+io.dangernoodle.slack.objects
+io.dangernoodle.slack.objects.api
+io.dangernoodle.slack.utils
