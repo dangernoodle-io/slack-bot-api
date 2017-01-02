@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>slack-bot-api</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>${project.artifactId}</name>
@@ -87,7 +87,7 @@
     <connection>scm:git:git@github.com:dangernoodle-io/slack-bot-api.git</connection>
     <developerConnection>scm:git:git@github.com:dangernoodle-io/slack-bot-api.git</developerConnection>
     <url>https://github.com:dangernoodle-io/slack-bot-api</url>
-    <tag>slack-bot-api-0.1.1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
