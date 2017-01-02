@@ -5,7 +5,7 @@
   <parent>
     <groupId>io.dangernoodle</groupId>
     <artifactId>slack-bot-api</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
   </parent>
 
   <name>${project.artifactId}</name>
