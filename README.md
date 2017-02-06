@@ -76,3 +76,4 @@ Details to follow...
 This library was inspired by the excellent [simple-slack-api](https://github.com/Ullink/simple-slack-api)
 library. If you are looking to create a slack bot and are unable to use `java 8`, the `simple-slack-api`
 is highly recommend as an alternative.
+
